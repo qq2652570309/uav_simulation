@@ -1,22 +1,35 @@
-from grid import Grid
-from Node import Node
+# from grid import Grid
+# from Node import Node
 import numpy as np
 
 class PathFinder:
-    def __init__(self, startX=0, startY=0, startT=0, endX=0, endY=0, endT=0):
-        self.ROW = 30
-        self.COLUMN = 30
-        self.TIME = 60
+    def __init__(self, startX=0, startY=0, endX=0, endY=0):
+        self.ROW = 3
+        self.COLUMN = 3
         self.startX = startX
         self.startY = startY
-        self.startT = startT
         self.endX = endX
         self.endY = endY
-        self.endT = endT
-        self.startNode = Node(x=self.startX, y=self.startY, time=self.startT)
-        self.targetNode = Node(x=self.endX, y=self.endY, time=self.endT)
-        self.grid = Grid(x=self.ROW, y=self.COLUMN, t=self.TIME)
+        # self.startNode = Node(x=self.startX, y=self.startY)
+        # self.targetNode = Node(x=self.endX, y=self.endY)
+        self.grid = np.zeros((self.ROW, self.COLUMN), dtype=np.int16)
 
+
+    def drawPath(self):
+        if self.endX > self.startX:
+            self.grid[self.startX:self.endX+1, self.endY] = 1
+        else:
+            self.grid[self.endX:self.startX+1, self.endY] = 1 
+
+        if self.endY > self.startY:
+            self.grid[self.startX, self.startY:self.endY+1] = 1
+        else:
+            self.grid[self.startX, self.endY:self.startY+1] = 1
+
+    def getGrid(self):
+        return self.grid
+
+'''
     def PathFinding(self):
         foundPath = []
         curNode = self.startNode
@@ -49,4 +62,4 @@ class PathFinder:
         path = self.PathFinding()
         self.grid.fillGrid(path)
         np.save('result_grid', self.grid.getGrid())
-        
+'''    
