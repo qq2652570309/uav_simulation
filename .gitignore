@@ -1,0 +1,15 @@
+# Dir #
+###################
+.venv/
+.vscode/
+__pycache__/
+
+settings.json
+
+test.py
+
+*.zip
+
+*.png
+
+test*.py
