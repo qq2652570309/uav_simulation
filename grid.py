@@ -8,4 +8,7 @@ class Grid:
     def getGrid(self):
         return self.grid
 
+    def fillGrid(self, path):
+        for node in path:
+            self.grid[node.x][node.y][node.t] = 1
     

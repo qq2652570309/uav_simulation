@@ -12,10 +12,37 @@ class PathFinder:
         self.endX = endX
         self.endY = endY
         self.endT = endT
-        self.startNode = Node(x=self.startX, y=self.startY, t=self.startT)
-        self.targetNode = Node(x=self.endX, y=self.endY, t=self.endT)
-        self.grid = grid(x=self.ROW, y=self.COLUMN, t=self.TIME)
+        self.startNode = Node(x=self.startX, y=self.startY, time=self.startT)
+        self.targetNode = Node(x=self.endX, y=self.endY, time=self.endT)
+        self.grid = Grid(x=self.ROW, y=self.COLUMN, t=self.TIME)
 
     def PathFinding(self):
-        return None
+        foundPath = []
+        curNode = self.startNode
+        foundPath.append(curNode)
+
+        # row movement
+        while (True):
+            if curNode.x == self.targetNode.x:
+                # in same row
+                break
+            elif curNode.x < self.targetNode.x:
+                curNode = Node(curNode.x + 1, curNode.y, curNode.t + 1)
+            else:
+                curNode = Node(curNode.x - 1, curNode.y, curNode.t + 1)
+            foundPath.append(curNode)
+        
+        # col movement
+        while (True):
+            foundPath.append(curNode)
+            if curNode.equals(self.targetNode):
+                break
+            elif curNode.y < self.targetNode.y:
+                curNode = Node(curNode.x, curNode.y + 1, curNode.t + 1)
+            else:
+                curNode = Node(curNode.x, curNode.y - 1, curNode.t + 1)
+
+        return foundPath
+
+
         
