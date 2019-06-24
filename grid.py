@@ -3,7 +3,9 @@ import numpy as np
 class Grid:
 
     def __init__(self, x=0, y=0):
-       self.grid = np.zeros((x, y), dtype=np.int16)
+        self.ROW = x
+        self.COLUMN = y
+        self.grid = np.zeros((x, y), dtype=np.int16)
 
     def getGrid(self):
         return self.grid
