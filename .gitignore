@@ -13,3 +13,5 @@ test.py
 *.png
 
 test*.py
+
+*.npy

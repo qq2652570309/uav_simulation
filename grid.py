@@ -12,3 +12,4 @@ class Grid:
         for node in path:
             self.grid[node.x][node.y][node.t] = 1
     
+    

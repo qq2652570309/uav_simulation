@@ -1,5 +1,6 @@
 from grid import Grid
 from Node import Node
+import numpy as np
 
 class PathFinder:
     def __init__(self, startX=0, startY=0, startT=0, endX=0, endY=0, endT=0):
@@ -41,8 +42,11 @@ class PathFinder:
                 curNode = Node(curNode.x, curNode.y + 1, curNode.t + 1)
             else:
                 curNode = Node(curNode.x, curNode.y - 1, curNode.t + 1)
-
+        
         return foundPath
 
-
+    def save_grid(self):
+        path = self.PathFinding()
+        self.grid.fillGrid(path)
+        np.save('result_grid', self.grid.getGrid())
         
