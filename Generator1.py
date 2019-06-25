@@ -11,20 +11,20 @@ class Generator1:
         np.random.seed(seed)
         result = []
         gridInfo = []
-        departures = np.arange(row*column)
+        departures = np.arange(self.row*self.column)
         np.random.shuffle(departures)
 
         for i in range(len(departures)):
             departure = departures[i]
-            startX = departure//row
-            startY = departure%column
+            startX = departure//self.row
+            startY = departure%self.column
 
-            destinations = np.arange(row*column)
+            destinations = np.arange(self.row*self.column)
             np.random.shuffle(destinations)
             for destination in destinations:
-                endX = destination//row
-                endY = destination%column
-                grid = Grid(x=row, y=column)
+                endX = destination//self.row
+                endY = destination%self.column
+                grid = Grid(x=self.row, y=self.column)
                 grid.drawPath(startX=startX, startY=startY, endX=endX, endY=endY)
                 result.append(grid.getGrid())
                 
