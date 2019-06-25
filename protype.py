@@ -1,6 +1,15 @@
 import numpy as np
 from grid import Grid
 
+
+# create a matrix, sum of its elements is 1 
+row = 5
+col = 4
+
+s = np.random.dirichlet(np.ones(col),size=row)
+
+############################################################
+
 row = 3
 column = 3
 
