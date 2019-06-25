@@ -11,17 +11,22 @@ class Generator1:
         np.random.seed(seed)
         result = []
         gridInfo = []
+
+        # shuflle all departures and iterating them
         departures = np.arange(self.row*self.column)
         np.random.shuffle(departures)
-
         for i in range(len(departures)):
             departure = departures[i]
             startX = departure//self.row
             startY = departure%self.column
 
+            # shuflle all destinations and iterating them
             destinations = np.arange(self.row*self.column)
             np.random.shuffle(destinations)
             for destination in destinations:
+                # uav does not move 
+                if destination == departure:
+                    continue
                 endX = destination//self.row
                 endY = destination%self.column
                 grid = Grid(x=self.row, y=self.column)
