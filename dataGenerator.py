@@ -16,4 +16,4 @@ class dataGenerator:
 
     def getDataSet(self):
         return self.dataSet
-            
+

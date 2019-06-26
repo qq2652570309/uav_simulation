@@ -2,10 +2,9 @@ import numpy as np
 from grid import Grid
 
 class Generator1:
-    def __init__(self, width=0, height=0):  
+    def __init__(self, width=0, height=0):
         self.row = height
         self.column = width
-
 
     def randomPath(self, seed=None):
         np.random.seed(seed)
