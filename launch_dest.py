@@ -15,7 +15,9 @@ def isLaunch(launching_rate):
 # destRates is a 1 x N array containing all destination rates
 # rowLen is how many elements place in one row
 def destinationPos(destination_rates, rowLen):
-    possibility = random.uniform(0,1)
+    # possibility = random.uniform(0,1)
+    possibility = 5.5
+    print(possibility)
     for i, val in enumerate(destination_rates):
         if (possibility <= val):
             row = i // rowLen
@@ -27,6 +29,7 @@ def destinationPos(destination_rates, rowLen):
 # launching_rate = 0.5
 # for x in range(10):
 #     print(isLaunch(launching_rate))
-# destRates = [1,1,1,1,1,1,1,1,1]
-# r, c = destinationPos(destRates, 3)
-# print(r, c)
+destRates = [1,1,1,1,1,1,1,1,1,1,1,1]
+r, c = destinationPos(destRates, 3)
+print(np.array(destRates).reshape(3,4))
+print(r, c)

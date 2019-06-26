@@ -7,17 +7,15 @@ class Grid:
         self.COLUMN = col
         self.grid = np.zeros((self.ROW, self.COLUMN), dtype=np.int16)
         self.time = time
-        self.currentTime = 59
-        print('grid size: ({0}, {1})  total time: {2} currentTime: {3}'.format(self.ROW, self.COLUMN, self.time, self.currentTime))
+        # print('grid size: ({0}, {1})  total time: {2} currentTime: {3}'.format(self.ROW, self.COLUMN, self.time, self.currentTime))
 
     def getGrid(self):
-        return self.grid
-
+        return self.grid / self.time
     
-    def drawPath(self, startX, startY, endX, endY):
+    def drawPath(self, startX, startY, endX, endY, currentTime):
         
         # first row then column
-        remainingTime = self.time - self.currentTime
+        remainingTime = self.time - currentTime
 
         # print('before row, remainingTime: {0}'.format(remainingTime))
         if abs(endY - startY)+1 <= remainingTime:

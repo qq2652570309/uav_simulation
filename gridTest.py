@@ -43,7 +43,7 @@ g1 = Grid(row=row, col=column, time=60)
 # g1.drawPath(startX=startX,startY=startY,endX=endX,endY=endY)
 
 
-print('right botton --> left tio')
+print('right botton --> left top')
 startX = 4
 startY = 4
 endX = 1
