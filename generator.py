@@ -2,7 +2,7 @@ import numpy as np
 import random
 from grid import Grid
 
-class dataGenerator:
+class Generator:
     def __init__(self, row=0, column=0, time=60):
         self.row = row
         self.column = column
@@ -33,7 +33,6 @@ class dataGenerator:
     # launching_rate is a float number
     def isLaunch(self, launching_rate):
         possibility = random.uniform(0,1)
-        print(possibility)
         if (possibility >= launching_rate):
             return True
         else:
