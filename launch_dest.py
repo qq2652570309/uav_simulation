@@ -6,7 +6,7 @@ import random
 # launching_rate is a float number
 def isLaunch(launching_rate):
     possibility = random.uniform(0,1)
-    print(possibility)
+    print(possibility, end=': ')
     if (possibility >= launching_rate):
         return True
     else:
@@ -29,7 +29,7 @@ def destinationPos(destination_rates, rowLen):
 # launching_rate = 0.5
 # for x in range(10):
 #     print(isLaunch(launching_rate))
-destRates = [1,1,1,1,1,1,1,1,1,1,1,1]
-r, c = destinationPos(destRates, 3)
-print(np.array(destRates).reshape(3,4))
-print(r, c)
+# destRates = [1,1,1,1,1,1,1,1,1,1,1,1]
+# r, c = destinationPos(destRates, 3)
+# print(np.array(destRates).reshape(3,4))
+# print(r, c)
