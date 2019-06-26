@@ -18,7 +18,6 @@ class Grid:
         # 先判断row是否能走完，row能走完用原方法走，走不完用remainTime走
         # 如果remainTime有剩余，判断是否column能走完，能走完用原方法走，走不完用remainTime走
         
-        
         # first row then column
         flyTime = abs(endY - startY) + abs(endX - startX) + 1
         
