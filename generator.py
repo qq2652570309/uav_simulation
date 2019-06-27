@@ -2,8 +2,6 @@ import numpy as np
 import random
 from grid import Grid
 
-random.seed(0)
-
 class Generator:
     def __init__(self, row=0, column=0, time=60):
         self.row = row
