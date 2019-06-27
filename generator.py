@@ -32,24 +32,22 @@ class Generator:
                 for c in range(self.column):
                     if self.isLaunch(self.launchingRates[r][c]):
                         endX, endY = self.destinationPosition(self.destinationRates[r][c])
-                        # print('----------------------')
-                        # print('At {0} second, startPoint ({1}, {2}), endPoint ({3}, {4})'.format(currentTime, r, c, endX, endY))
                         self.groundTruth.drawPath(r,c,endX,endY,currentTime)
                         ########### test ##########
-                        if currentTime in self.launchingPoints:
-                            self.launchingPoints[currentTime].append((r,c))
-                        else:
-                            self.launchingPoints[currentTime] = [(r,c)]
-                        if currentTime in self.destinationPoints:
-                            self.destinationPoints[currentTime].append((endX,endY))
-                        else:
-                            self.destinationPoints[currentTime] = [(endX,endY)]
-                        if currentTime in self.gridStatus:
-                            currentGrid = self.groundTruth.getGrid().copy()
-                            self.gridStatus[currentTime].append(currentGrid)
-                        else:
-                            currentGrid = self.groundTruth.getGrid().copy()
-                            self.gridStatus[currentTime] = [currentGrid]
+                        # if currentTime in self.launchingPoints:
+                        #     self.launchingPoints[currentTime].append((r,c))
+                        # else:
+                        #     self.launchingPoints[currentTime] = [(r,c)]
+                        # if currentTime in self.destinationPoints:
+                        #     self.destinationPoints[currentTime].append((endX,endY))
+                        # else:
+                        #     self.destinationPoints[currentTime] = [(endX,endY)]
+                        # if currentTime in self.gridStatus:
+                        #     currentGrid = self.groundTruth.getGrid().copy()
+                        #     self.gridStatus[currentTime].append(currentGrid)
+                        # else:
+                        #     currentGrid = self.groundTruth.getGrid().copy()
+                        #     self.gridStatus[currentTime] = [currentGrid]
                         ###########################
         return self.groundTruth.getGrid()
 
