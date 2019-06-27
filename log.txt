@@ -1,0 +1,3 @@
+total running time: 286.38923501968384
+training set shape: (5, 64, 64, 4096)
+ground truth shape: (5, 64, 64)

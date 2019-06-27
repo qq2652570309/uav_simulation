@@ -20,19 +20,21 @@ class Simulator:
             groundTruth = ge.genertateGroundTruth()
             self.trainingSets.append(trainingSet)
             self.groundTruths.append(groundTruth)
+        self.trainingSets = np.array(self.trainingSets)
+        self.groundTruths = np.array(self.groundTruths)
         fo = open("log.txt", "w")
         fo.write("total running time: {0}\n".format(time.time() - startTime))
-        fo.write("training set shape: {0}\n".format(self.trainingSets[0].shape))
-        fo.write("ground truth shape: {0}\n".format(self.groundTruths[0].shape))
+        fo.write("training set shape: {0}\n".format(self.trainingSets.shape))
+        fo.write("ground truth shape: {0}\n".format(self.groundTruths.shape))
         fo.close()
         print('total running time: {0}'.format(time.time() - startTime))
-        print('training set shape: {0}'.format(self.trainingSets[0].shape))
-        print('ground truth shape: {0}'.format(self.groundTruths[0].shape))
+        print('training set shape: {0}'.format(self.trainingSets.shape))
+        print('ground truth shape: {0}'.format(self.groundTruths.shape))
 
 
     def getData(self):
         return self.trainingSets, self.groundTruths
     
     def save(self):
-        np.save('trainingSets', np.array(self.trainingSets))
-        np.save('groundTruths', np.array(self.groundTruths))
+        np.save('trainingSets', self.trainingSets)
+        np.save('groundTruths', self.groundTruths)
