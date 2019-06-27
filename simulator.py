@@ -17,10 +17,14 @@ class Simulator:
             trainingSet = ge.genertateTrainingSet()
             groundTruth = ge.genertateGroundTruth()
             self.result[i] = [trainingSet, groundTruth]
-        print('total running time: ', time.time() - startTime)
-        print('training set shape: ', self.result[0][0].shape)
-        print('ground truth shape: ', self.result[0][1].shape)
-
+        fo = open("log.txt", "w")
+        fo.write("total running time: {0}\n".format(time.time() - startTime))
+        fo.write("training set shape: {0}\n".format(self.result[0][0].shape))
+        fo.write("ground truth shape: {0}\n".format(self.result[0][1].shape))
+        fo.close()
+        print('total running time: {0}'.format(time.time() - startTime))
+        print('training set shape: {0}'.format(self.result[0][0].shape))
+        print('ground truth shape: {0}'.format(self.result[0][1].shape))
 
 
     def getData(self):
