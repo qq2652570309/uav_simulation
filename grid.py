@@ -10,7 +10,8 @@ class Grid:
         # print('grid size: ({0}, {1})  total time: {2} currentTime: {3}'.format(self.ROW, self.COLUMN, self.time, self.currentTime))
 
     def getGrid(self):
-        return self.grid / self.time
+        # return self.grid / self.time
+        return self.grid
     
     def drawPath(self, startX, startY, endX, endY, currentTime):
         
