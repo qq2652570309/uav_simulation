@@ -11,7 +11,7 @@ class Simulator:
         self.time = time
         self.startPointsNum = startPointsNum
         self.endPointsNum = endPointsNum
-        self.trainingSets = []
+        self.trainingSets = np.zeros(shape=(self.iteration, self.time, self.row, self.column), dtype=np.float32)
         self.groundTruths = []
 
 
@@ -22,11 +22,12 @@ class Simulator:
             startPositions = list(map(lambda x: (x//self.column, x%self.column), startPoints))
             endPoints = self.choosePoints(self.endPointsNum)
             endPositions = list(map(lambda x: (x//self.column, x%self.column), endPoints))
-            grid = np.zeros(shape=(self.row, self.column), dtype=np.float32)
+            # grid = np.zeros(shape=(self.time, self.row, self.column), dtype=np.float32)
 
             for r, c in startPositions:
-                grid[r][c] = np.random.uniform(0, 1)
-            print(grid)
+                # grid[:,r,c] = np.random.uniform(0, 1)
+                self.trainingSets[i,:,r,c] = np.random.uniform(0, 1)
+            # print(grid)
             
 
             
