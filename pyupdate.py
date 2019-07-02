@@ -73,5 +73,15 @@ row=3
 column=4
 startPointsNum = 10
 
-out = np.random.choice(row*column, startPointsNum, replace=False)
+# out = np.random.choice(row*column, startPointsNum, replace=False)
+# out = np.random.uniform(0,1,10)
+
+
+
+input = [3, 5, 6, 10]
+out = list(map(lambda x: (x//column, x%column) , input))
 print(out)
+
+# i = 3
+# print(i//column)
+# print(i%column)
