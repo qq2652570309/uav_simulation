@@ -20,14 +20,16 @@ class Simulator:
         for i in range(self.iteration):
             startPoints = self.choosePoints(self.startPointsNum)
             startPositions = list(map(lambda x: (x//self.column, x%self.column), startPoints))
-            print(startPoints)
-            print(startPositions)
             endPoints = self.choosePoints(self.endPointsNum)
             endPositions = list(map(lambda x: (x//self.column, x%self.column), endPoints))
-            print(endPoints)
-            print(endPositions)
-            # launchingRate = np.random.uniform(0, 1, size=(self.time, self.startPointsNum)) # given info
-                        
+            grid = np.zeros(shape=(self.row, self.column), dtype=np.float32)
+
+            for r, c in startPositions:
+                grid[r][c] = np.random.uniform(0, 1)
+            print(grid)
+            
+
+            
 
         #     ge = Generator(self.row, self.column, self.time)
         #     ts = ge.genertateTrainingSet()

@@ -80,14 +80,10 @@ startPointsNum = 10
 # out = list(map(lambda x: (x//column, x%column), input))
 # print(out)
 
-# out = np.zeros(shape=(3, 4), dtype=np.int)
-input = np.array([3, 5, 6, 10])
-
-out = list(map(lambda x: (x//column, x%column), input))
-for r, c in out:
-    print(r, ", ", c)
-
-# def convertToPosition(input):
-    
+out = np.empty(shape=(1,1))
+out.append(1)
+out.append(2)
+out.append(3)
+print(out)    
 
 
