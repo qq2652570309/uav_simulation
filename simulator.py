@@ -14,18 +14,24 @@ class Simulator:
         self.trainingSets = []
         self.groundTruths = []
 
-        self.startPoints = self.choosePoints(self.startPointsNum)
-        self.endPoints = self.choosePoints(self.endPointsNum)
-
 
     def generate(self):
         startTime = time.time()
         for i in range(self.iteration):
+            startPoints = self.choosePoints(self.startPointsNum)
+            endPoints = self.choosePoints(self.endPointsNum)
+            launchingRate = np.random.uniform(0, 1, size=(self.time, self.startPointsNum)) # given info
+            
+            
+
+
+            
+
             ge = Generator(self.row, self.column, self.time)
-            trainingSet = ge.genertateTrainingSet()
-            groundTruth = ge.genertateGroundTruth()
-            self.trainingSets.append(trainingSet)
-            self.groundTruths.append(groundTruth)
+            ts = ge.genertateTrainingSet()
+            gt = ge.genertateGroundTruth()
+            self.trainingSets.append(ts)
+            self.groundTruths.append(gt)
         self.trainingSets = np.array(self.trainingSets)
         self.groundTruths = np.array(self.groundTruths)
         fo = open("log.txt", "w")
@@ -48,3 +54,4 @@ class Simulator:
     # maybe startPointsNum != endPointsNum
     def choosePoints(self, pointsNum):
         return np.random.choice(self.row*self.column, pointsNum, replace=False)
+
