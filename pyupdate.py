@@ -33,6 +33,15 @@ G[t2, c, endCol] += 1
 # print(G)
 '''
 
+'''
+startRow = 0
+startCol = 0
+endRow = 2
+endCol = 3
+
+# t * r * c
+G = np.zeros((8,3,4))
+
 currentTime = 1
 totalTime = 8
 
@@ -48,8 +57,6 @@ t1 = np.arange(currentTime, currentTime+len(r))
 G[t1,startRow, r] += 1
 remainingTime -= len(r)
 
-print(remainingTime)
-
 if remainingTime > 0 :
     # exists time for vertical
     if remainingTime >= abs(startRow-endRow) :
@@ -62,3 +69,13 @@ if remainingTime > 0 :
     G[t2, c, endCol] += 1
     
 print(G)
+'''
+
+import random
+
+row=3
+column=4
+startPointsNum = 10
+
+out = np.random.choice(row*column, startPointsNum, replace=False)
+print(out)
