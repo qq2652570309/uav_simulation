@@ -1,9 +1,5 @@
 import numpy as np
 
-A = np.array([0,1,2,3])
-B = np.array([0,1,2,3])
-
-
 
 startRow = 0
 startCol = 0
