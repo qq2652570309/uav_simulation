@@ -19,29 +19,31 @@ class Simulator:
         startTime = time.time()
         for i in range(self.iteration):
             startPoints = self.choosePoints(self.startPointsNum)
+            startPositions = list(map(lambda x: (x//self.column, x%self.column), startPoints))
+            print(startPoints)
+            print(startPositions)
             endPoints = self.choosePoints(self.endPointsNum)
-            launchingRate = np.random.uniform(0, 1, size=(self.time, self.startPointsNum)) # given info
-            
-            
+            endPositions = list(map(lambda x: (x//self.column, x%self.column), endPoints))
+            print(endPoints)
+            print(endPositions)
+            # launchingRate = np.random.uniform(0, 1, size=(self.time, self.startPointsNum)) # given info
+                        
 
-
-            
-
-            ge = Generator(self.row, self.column, self.time)
-            ts = ge.genertateTrainingSet()
-            gt = ge.genertateGroundTruth()
-            self.trainingSets.append(ts)
-            self.groundTruths.append(gt)
-        self.trainingSets = np.array(self.trainingSets)
-        self.groundTruths = np.array(self.groundTruths)
-        fo = open("log.txt", "w")
-        fo.write("total running time: {0}\n".format(time.time() - startTime))
-        fo.write("training set shape: {0}\n".format(self.trainingSets.shape))
-        fo.write("ground truth shape: {0}\n".format(self.groundTruths.shape))
-        fo.close()
-        print('total running time: {0}'.format(time.time() - startTime))
-        print('training set shape: {0}'.format(self.trainingSets.shape))
-        print('ground truth shape: {0}'.format(self.groundTruths.shape))
+        #     ge = Generator(self.row, self.column, self.time)
+        #     ts = ge.genertateTrainingSet()
+        #     gt = ge.genertateGroundTruth()
+        #     self.trainingSets.append(ts)
+        #     self.groundTruths.append(gt)
+        # self.trainingSets = np.array(self.trainingSets)
+        # self.groundTruths = np.array(self.groundTruths)
+        # fo = open("log.txt", "w")
+        # fo.write("total running time: {0}\n".format(time.time() - startTime))
+        # fo.write("training set shape: {0}\n".format(self.trainingSets.shape))
+        # fo.write("ground truth shape: {0}\n".format(self.groundTruths.shape))
+        # fo.close()
+        # print('total running time: {0}'.format(time.time() - startTime))
+        # print('training set shape: {0}'.format(self.trainingSets.shape))
+        # print('ground truth shape: {0}'.format(self.groundTruths.shape))
 
 
     def getData(self):

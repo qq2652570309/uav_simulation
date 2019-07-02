@@ -4,4 +4,5 @@ from simulator import Simulator
 # s.generate()
 # s.save()
 
-s = Simulator(iteration = 25, row=3, column=4, time=60, startPointsNum=10, endPointsNum=10)
+s = Simulator(iteration = 1, row=3, column=4, time=60, startPointsNum=10, endPointsNum=10)
+s.generate()

@@ -76,12 +76,18 @@ startPointsNum = 10
 # out = np.random.choice(row*column, startPointsNum, replace=False)
 # out = np.random.uniform(0,1,10)
 
+# input = np.array([3, 5, 6, 10])
+# out = list(map(lambda x: (x//column, x%column), input))
+# print(out)
+
+# out = np.zeros(shape=(3, 4), dtype=np.int)
+input = np.array([3, 5, 6, 10])
+
+out = list(map(lambda x: (x//column, x%column), input))
+for r, c in out:
+    print(r, ", ", c)
+
+# def convertToPosition(input):
+    
 
 
-input = [3, 5, 6, 10]
-out = list(map(lambda x: (x//column, x%column) , input))
-print(out)
-
-# i = 3
-# print(i//column)
-# print(i%column)
