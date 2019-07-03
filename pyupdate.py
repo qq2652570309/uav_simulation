@@ -76,14 +76,14 @@ startPointsNum = 10
 # out = np.random.choice(row*column, startPointsNum, replace=False)
 # out = np.random.uniform(0,1,10)
 
-# input = np.array([3, 5, 6, 10])
-# out = list(map(lambda x: (x//column, x%column), input))
-# print(out)
+input = np.array([3, 5, 6, 10])
+out = list(map(lambda x: (x//column, x%column), input))
+print(out)
 
-out = np.empty(shape=(1,1))
-out.append(1)
-out.append(2)
-out.append(3)
-print(out)    
+# out = np.empty(shape=(1,1))
+# out.append(1)
+# out.append(2)
+# out.append(3)
+# print(out)    
 
 

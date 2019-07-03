@@ -12,7 +12,7 @@ class Simulator:
         self.startPointsNum = startPointsNum
         self.endPointsNum = endPointsNum
         self.trainingSets = np.zeros(shape=(self.iteration, self.time, self.row, self.column), dtype=np.float32)
-        self.groundTruths = []
+        self.groundTruths = np.zeros(shape=(self.iteration, self.time, self.row, self.column), dtype=np.float32)
 
 
     def generate(self):
@@ -22,39 +22,80 @@ class Simulator:
             startPositions = list(map(lambda x: (x//self.column, x%self.column), startPoints))
             endPoints = self.choosePoints(self.endPointsNum)
             endPositions = list(map(lambda x: (x//self.column, x%self.column), endPoints))
-            # grid = np.zeros(shape=(self.time, self.row, self.column), dtype=np.float32)
 
             for r, c in startPositions:
-                # grid[:,r,c] = np.random.uniform(0, 1)
                 self.trainingSets[i,:,r,c] = np.random.uniform(0, 1)
-            # print(grid)
-            
 
-            
-
-        #     ge = Generator(self.row, self.column, self.time)
-        #     ts = ge.genertateTrainingSet()
-        #     gt = ge.genertateGroundTruth()
-        #     self.trainingSets.append(ts)
-        #     self.groundTruths.append(gt)
-        # self.trainingSets = np.array(self.trainingSets)
-        # self.groundTruths = np.array(self.groundTruths)
-        # fo = open("log.txt", "w")
-        # fo.write("total running time: {0}\n".format(time.time() - startTime))
-        # fo.write("training set shape: {0}\n".format(self.trainingSets.shape))
-        # fo.write("ground truth shape: {0}\n".format(self.groundTruths.shape))
-        # fo.close()
-        # print('total running time: {0}'.format(time.time() - startTime))
-        # print('training set shape: {0}'.format(self.trainingSets.shape))
-        # print('ground truth shape: {0}'.format(self.groundTruths.shape))
-
-
-    def getData(self):
-        return self.trainingSets, self.groundTruths
     
-    def save(self):
-        np.save('trainingSets', self.trainingSets)
-        np.save('groundTruths', self.groundTruths)
+    def draw(self, index, startPositions, endPositions):
+
+        for startRow, startCol in startPositions:
+            for currentTime in range(self.time):
+                succ = np.random.uniform(0,1) <= self.trainingSets[index,currentTime,startRow,startCol]
+                if succ:
+                    endRow, endCol  = random.choice(endPositions)
+                    remainingTime = self.time - currentTime
+
+                    if remainingTime >= abs(startCol-endCol)+1 :
+                        # enough time for horizontal
+                        r =  np.arange(startCol, endCol+1)
+                    else:
+                        # not enough time for horizontal
+                        r = np.arange(startCol, startCol+remainingTime)
+                    t1 = np.arange(currentTime, currentTime+len(r))
+                    self.groundTruths[index,t1,startRow,r] += 1
+                    remainingTime -= len(r)
+
+                    if remainingTime > 0 :
+                        # exists time for vertical
+                        if remainingTime >= abs(startRow-endRow) :
+                            # enough time for vertical
+                            c = np.arange(startRow+1, endRow+1)
+                        else:
+                            # not enough time for vertical
+                            c = np.arange(startRow+1, startRow+remainingTime+1)
+                        t2 = np.arange(t1[-1]+1, t1[-1] + len(c)+1)
+                        self.groundTruths[index,t2, c, endCol] += 1
+
+
+
+            
+    def test(self):
+        startRow = 0
+        startCol = 0
+        endRow = 2
+        endCol = 3
+
+        # t * r * c
+        G = np.zeros((8,3,4))
+
+        currentTime = 1
+        totalTime = 8
+
+        remainingTime = totalTime - currentTime
+
+        if remainingTime >= abs(startCol-endCol)+1 :
+            # enough time for horizontal
+            r =  np.arange(startCol, endCol+1)
+        else:
+            # not enough time for horizontal
+            r = np.arange(startCol, startCol+remainingTime)
+        t1 = np.arange(currentTime, currentTime+len(r))
+        G[t1,startRow, r] += 1
+        remainingTime -= len(r)
+
+        if remainingTime > 0 :
+            # exists time for vertical
+            if remainingTime >= abs(startRow-endRow) :
+                # enough time for vertical
+                c = np.arange(startRow+1, endRow+1)
+            else:
+                # not enough time for vertical
+                c = np.arange(startRow+1, startRow+remainingTime+1)
+            t2 = np.arange(t1[-1]+1, t1[-1] + len(c)+1)
+            G[t2, c, endCol] += 1
+            
+        print(G)
 
     # maybe startPointsNum != endPointsNum
     def choosePoints(self, pointsNum):
