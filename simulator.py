@@ -13,12 +13,13 @@ class Simulator:
         self.endPointsNum = endPointsNum
         self.trainingSets = np.zeros(shape=(self.iteration, self.time, self.row, self.column), dtype=np.float32)
         self.groundTruths = np.zeros(shape=(self.iteration, self.time, self.row, self.column), dtype=np.float32)
-        logging.info('finish init')
+        logging.info('finish init\n')
 
 
     def generate(self):
-        startTime = time.time()
+        startTimeTotal = time.time()
         for index in range(self.iteration):
+            startTimeIter = time.time()
             logging.info('At {0} iteration'.format(index))
             startPoints = self.choosePoints(self.startPointsNum)
             startPositions = list(map(lambda x: (x//self.column, x%self.column), startPoints))
@@ -68,7 +69,8 @@ class Simulator:
                                     c = np.arange(startRow-remainingTime, startRow)[::-1]
                             t2 = np.arange(t1[-1]+1, t1[-1] + len(c)+1)
                             self.groundTruths[index,t2, c, endCol] += 1
-        logging.info('finish generate')
+            logging.info('End {0} iteration, cost {1}\n'.format(index, time.time() - startTimeIter))
+        logging.info('finish generate, cost {0}'.format(time.time() - startTimeTotal))
 
 
     # maybe startPointsNum != endPointsNum
