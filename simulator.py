@@ -1,7 +1,7 @@
-import numpy as np
 import time
 import random
 import logging
+import numpy as np
 
 class Simulator:
     def __init__(self, iteration = 1, row=0, column=0, time=60, startPointsNum=10, endPointsNum=10):
