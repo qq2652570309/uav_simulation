@@ -58,5 +58,5 @@ autoencoder.fit(x_train, y_train,
 
 decoded_imgs = autoencoder.predict(x_test)
 
-
+np.save('y_test.npy', y_test)
 np.save('prediction.npy', decoded_imgs)
