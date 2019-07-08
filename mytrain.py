@@ -15,6 +15,7 @@ uav_data = np.transpose(uav_data,(0,2,3,1))
 uav_label = np.load("groundTruths.npy")
 uav_label = np.transpose(uav_label,(0,2,3,1))
 
+
 uav_label = (uav_label - np.min(uav_label)) / np.max(uav_label) - np.min(uav_label)
 print(uav_label.shape)
 print(np.min(uav_label))
@@ -47,16 +48,18 @@ decoded = Conv2D(32, (3, 3), activation='sigmoid', padding='same')(x)
 # print(decoded.shape)
 
 autoencoder = Model(input_img, decoded)
-autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
+autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy', metrics=['accuracy'])
 
-autoencoder.fit(x_train, y_train,
+hist = autoencoder.fit(x_train, y_train,
                 epochs=20,
                 batch_size=16,
                 shuffle=True,
                 validation_data=(x_test, y_test),
                 callbacks=[TensorBoard(log_dir='./tmp/autoencoder')])
+print(hist.history)
 
 decoded_imgs = autoencoder.predict(x_test)
 
 
 np.save('prediction.npy', decoded_imgs)
+np.save('y_test.npy', y_test)

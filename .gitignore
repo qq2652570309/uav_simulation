@@ -3,6 +3,7 @@
 .venv/
 .vscode/
 __pycache__/
+tmp/
 
 settings.json
 
