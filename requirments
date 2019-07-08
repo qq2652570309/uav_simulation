@@ -1,4 +1,0 @@
-numpy
-tensorflow-gpu
-matplotlib==2.0.0
-keras
