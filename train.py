@@ -23,12 +23,17 @@ print(np.max(uav_label))
 print(np.mean(uav_label))
 print(np.median(uav_label))
 
-(x_train, y_train) = uav_data[:850], uav_label[:850]
-# y_train = y_train.reshape((850, 16, 16, 1))
-(x_test, y_test) = uav_data[850:], uav_label[850:]
-# y_test = y_test.reshape((150, 16, 16, 1))
 
-input_img = Input(shape=(16, 16, 32))
+data_size = len(uav_data) * 0.85
+
+# (x_train, y_train) = uav_data[:850], uav_label[:850]
+# (x_test, y_test) = uav_data[850:], uav_label[850:]
+(x_train, y_train) = uav_data[:data_size], uav_label[:data_size]
+(x_test, y_test) = uav_data[data_size:], uav_label[data_size:]
+
+# input_img = Input(shape=(16, 16, 32))
+input_img = Input(shape=uav_data[0].shape)
+print('input shape: ',input_img.shape)
 
 x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
 x = MaxPooling2D((2, 2), padding='same')(x)
@@ -51,7 +56,7 @@ autoencoder = Model(input_img, decoded)
 autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy', metrics=['accuracy'])
 
 hist = autoencoder.fit(x_train, y_train,
-                epochs=20,
+                epochs=100,
                 batch_size=16,
                 shuffle=True,
                 validation_data=(x_test, y_test),
