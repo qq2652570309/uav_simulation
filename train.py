@@ -56,12 +56,13 @@ autoencoder = Model(input_img, decoded)
 autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy', metrics=['accuracy'])
 
 hist = autoencoder.fit(x_train, y_train,
-                epochs=100,
+                epochs=300,
                 batch_size=16,
                 shuffle=True,
                 validation_data=(x_test, y_test),
                 callbacks=[TensorBoard(log_dir='./tmp/autoencoder')])
-print(hist.history)
+max_acc = max(hist.history['val_acc']) * 100
+print('best accuracy is {0}%'.format(max_acc))
 
 decoded_imgs = autoencoder.predict(x_test)
 

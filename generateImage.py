@@ -11,19 +11,19 @@ decoded_imgs = np.load('prediction.npy')
 
 
 index = 1
-n = 10
-plt.figure(figsize=(20, 4))
+n = 15
+plt.figure(figsize=(30, 4))
 for i in range(1, n+1):
     # display original
     ax = plt.subplot(2, n, i)
-    plt.imshow(y_test[index,:,:,i])
+    plt.imshow(y_test[index,:,:,i-1])
     plt.gray()
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
 
     # display reconstruction
     ax = plt.subplot(2, n, i + n)
-    plt.imshow(decoded_imgs[index,:,:,i])
+    plt.imshow(decoded_imgs[index,:,:,i-1])
     plt.gray()
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
