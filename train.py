@@ -24,7 +24,7 @@ print(np.mean(uav_label))
 print(np.median(uav_label))
 
 
-data_size = len(uav_data) * 0.85
+data_size = int(len(uav_data) * 0.85)
 
 # (x_train, y_train) = uav_data[:850], uav_label[:850]
 # (x_test, y_test) = uav_data[850:], uav_label[850:]
