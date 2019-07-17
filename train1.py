@@ -9,11 +9,16 @@ import numpy as np
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-uav_data = np.load("trainingSets.npy")
-uav_data = np.transpose(uav_data,(0,2,3,1))
+# uav_data = np.load("trainingSets.npy")
+# uav_data = np.transpose(uav_data,(0,2,3,1))
 
-uav_label = np.load("groundTruths.npy")
-uav_label = np.transpose(uav_label,(0,2,3,1))
+# uav_label = np.load("groundTruths.npy")
+# uav_label = np.transpose(uav_label,(0,2,3,1))
+
+data = np.load("groundTruths.npy")
+data = np.transpose(data,(0,2,3,1))
+uav_data = data[:,:,:,:-1]
+uav_label = data[:,:,:,1:]
 
 
 uav_label = (uav_label - np.min(uav_label)) / np.max(uav_label) - np.min(uav_label)
@@ -26,8 +31,6 @@ print(np.median(uav_label))
 
 data_size = int(len(uav_data) * 0.85)
 
-# (x_train, y_train) = uav_data[:850], uav_label[:850]
-# (x_test, y_test) = uav_data[850:], uav_label[850:]
 (x_train, y_train) = uav_data[:data_size], uav_label[:data_size]
 (x_test, y_test) = uav_data[data_size:], uav_label[data_size:]
 
