@@ -4,14 +4,17 @@ import logging
 import numpy as np
 
 class Simulator:
-    def __init__(self, iteration = 1, row=0, column=0, time=60, startPointsNum=10, endPointsNum=10):
+    def __init__(self, iteration = 1, time=60, row=0, column=0,  startPointsNum=10, endPointsNum=10):
         self.iteration = iteration
         self.row = row
         self.column = column
         self.time = time
         self.startPointsNum = startPointsNum
         self.endPointsNum = endPointsNum
-        self.trainingSets = np.zeros(shape=(self.iteration, self.time, self.row, self.column), dtype=np.float32)
+        # In channel, 0th is status that uav is launching at this second
+        # 1st is launching rate of this point
+        # 2nd and 3rd is (x, y) postion of destination point
+        self.trainingSets = np.zeros(shape=(self.iteration, self.time, self.row, self.column, 4), dtype=np.float32)
         self.groundTruths = np.zeros(shape=(self.iteration, self.time, self.row, self.column), dtype=np.float32)
         logging.info('finish init\n')
 
@@ -29,13 +32,19 @@ class Simulator:
             for startRow, startCol in startPositions:
                 logging.info('   At start Point ({0}, {1})'.format(startRow, startCol))
                 # set traning sets
-                self.trainingSets[index,:,startRow,startCol] = np.random.uniform(0, 1)
+                self.trainingSets[index,:,startRow,startCol,1] = np.random.uniform(0, 1)
                 # generate ground truth
                 for currentTime in range(self.time):
-                    succ = np.random.uniform(0,1) <= self.trainingSets[index,currentTime,startRow,startCol]
+                    succ = np.random.uniform(0,1) <= self.trainingSets[index,currentTime,startRow,startCol,1]
                     if succ:
                         endRow, endCol  = random.choice(endPositions)
                         remainingTime = self.time - currentTime
+                        
+                        # add info into channel
+                        self.trainingSets[index,currentTime,startRow,startCol,0] = 1 # launching one uav
+                        self.trainingSets[index,currentTime,startRow,startCol,2] = endRow # destination row value
+                        self.trainingSets[index,currentTime,startRow,startCol,3] = endCol # destination col value
+                        
                         logging.info('      At time {0}, ({1}, {2}) --> ({3}, {4})'.format(currentTime, startRow, startCol, endRow, endCol))
                         if remainingTime >= abs(startCol-endCol)+1 :
                             # enough time for horizontal
