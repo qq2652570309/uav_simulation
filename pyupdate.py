@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 
 
 
-uav_data = np.load("trainingSets.npy")
+uav_data = np.load("trainingSets.npy") # (1000, 30, 16, 16, 4)
+print('uav_data: ', uav_data.shape)
 
 uav_label = np.load("groundTruths.npy") 
 

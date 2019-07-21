@@ -1,3 +1,8 @@
+'''
+# In channel, 0th is status that uav is launching at this second
+# 1st is launching rate of this point
+# 2nd and 3rd is (x, y) postion of destination point
+'''
 import time
 import random
 import logging

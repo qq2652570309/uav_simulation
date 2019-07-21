@@ -1,28 +1,38 @@
-from tensorflow.keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D
-from tensorflow.keras.models import Model
-
-from tensorflow.keras.datasets import mnist
-from tensorflow.keras.callbacks import TensorBoard
-import numpy as np
-# import matplotlib.pyplot as plt
+'''
+after we get prediction, we use upsampling for binary_corssentropy loss
+# model.compile(optimizer='adadelta', loss='binary_crossentropy', metrics=['accuracy'])
+'''
 
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ["CUDA_VISIBLE_DEVICES"]="2"
+import tensorflow as tf
+from tensorflow.python.ops import math_ops
+from tensorflow.keras.layers import Input, Dense, Conv2D, MaxPooling2D, Dropout, LSTM, Conv2DTranspose, Conv3DTranspose
+from tensorflow.keras.layers import Flatten, Activation, Reshape
+from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.layers import TimeDistributed
+from tensorflow.keras.layers import LeakyReLU
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
+from keras import backend as K
+import keras
+import numpy as np
+
+tf.logging.set_verbosity(tf.logging.ERROR)
+
 
 uav_data = np.load("trainingSets.npy")
-uav_data = np.transpose(uav_data,(0,2,3,1))
+print('raw uav_data: ', uav_data.shape) # (1000, 30, 16, 16, 4)
 
 uav_label = np.load("groundTruths.npy")
-uav_label = np.transpose(uav_label,(0,2,3,1))
-
+print('raw uav_label: ', uav_label.shape) # (1000, 30, 16, 16)
 
 uav_label = (uav_label - np.min(uav_label)) / np.max(uav_label) - np.min(uav_label)
-print(uav_label.shape)
-print(np.min(uav_label))
-print(np.max(uav_label))
-print(np.mean(uav_label))
-print(np.median(uav_label))
-
+print('uav_label min: ', np.min(uav_label))
+print('uav_label max: ', np.max(uav_label))
+print('uav_label mean: ', np.mean(uav_label))
+print('uav_label median: ', np.median(uav_label))
 
 data_size = int(len(uav_data) * 0.85)
 
@@ -31,41 +41,98 @@ data_size = int(len(uav_data) * 0.85)
 (x_train, y_train) = uav_data[:data_size], uav_label[:data_size]
 (x_test, y_test) = uav_data[data_size:], uav_label[data_size:]
 
-# input_img = Input(shape=(16, 16, 32))
-input_img = Input(shape=uav_data[0].shape)
-print('input shape: ',input_img.shape)
-
-x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
-x = MaxPooling2D((2, 2), padding='same')(x)
-x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
-x = MaxPooling2D((2, 2), padding='same')(x)
-x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
-encoded = MaxPooling2D((2, 2), padding='same')(x)
-# print('after 3rd MaxP: ', encoded.shape)
-
-x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
-x = UpSampling2D((2, 2))(x)
-x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
-x = UpSampling2D((2, 2))(x)
-x = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
-x = UpSampling2D((2, 2))(x)
-decoded = Conv2D(32, (3, 3), activation='sigmoid', padding='same')(x)
-# print(decoded.shape)
-
-autoencoder = Model(input_img, decoded)
-autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy', metrics=['accuracy'])
-
-hist = autoencoder.fit(x_train, y_train,
-                epochs=300,
-                batch_size=16,
-                shuffle=True,
-                validation_data=(x_test, y_test),
-                callbacks=[TensorBoard(log_dir='./tmp/autoencoder')])
-max_acc = max(hist.history['val_acc']) * 100
-print('best accuracy is {0}%'.format(max_acc))
-
-decoded_imgs = autoencoder.predict(x_test)
 
 
-np.save('prediction.npy', decoded_imgs)
-np.save('y_test.npy', y_test)
+cnn_model = Sequential()
+
+# (16, 16, 4)
+cnn_model.add(Conv2D(4, kernel_size=(2, 2),
+                 activation='relu',
+                 input_shape=(16, 16, 4)))
+cnn_model.add(MaxPooling2D(pool_size=(2,2)))
+cnn_model.add(Conv2D(4, kernel_size=(2, 2), activation='relu'))
+cnn_model.add(MaxPooling2D(pool_size=(2,2)))
+cnn_model.add(Flatten())
+# cnn_model.summary()
+
+
+lstm_model = Sequential()
+lstm_model.add(LSTM(72, input_shape=(4, 36), dropout=0.15, return_sequences=True))
+lstm_model.add(BatchNormalization())
+lstm_model.add(LSTM(256, dropout=0.15, return_sequences=False))
+lstm_model.add(Dense(512))
+lstm_model.add(BatchNormalization())
+lstm_model.add(LeakyReLU(alpha=.001))
+lstm_model.add(Dense(1024))
+lstm_model.add(BatchNormalization())
+lstm_model.add(LeakyReLU(alpha=.001))
+# lstm_model.summary()
+
+
+
+upsample_model = Sequential()
+upsample_model.add(Reshape((16, 8, 8, 1), input_shape=(1, 1024)))
+upsample_model.add(Conv3DTranspose(2, kernel_size=(4, 3, 3), activation='relu'))
+upsample_model.add(BatchNormalization())
+upsample_model.add(Conv3DTranspose(4, kernel_size=(5, 3, 3), activation='relu'))
+upsample_model.add(BatchNormalization())
+upsample_model.add(Conv3DTranspose(2, kernel_size=(4, 3, 3), activation='relu'))
+upsample_model.add(BatchNormalization())
+upsample_model.add(Conv3DTranspose(1, kernel_size=(5, 3, 3), activation='relu'))
+upsample_model.add(BatchNormalization())
+upsample_model.add(Reshape((30, 16, 16)))
+# upsample_model.summary()
+
+
+# cnn_input = (?, 30, 16, 16, 4)
+
+cnn_input = Input(shape=uav_data[0].shape)
+print('input shape: ',cnn_input.shape) # (?, 30, 16, 16, 4)
+lstm_input = TimeDistributed(cnn_model)(cnn_input)
+lstm_output = lstm_model(lstm_input)
+final_output = upsample_model(lstm_output)
+
+cnn_lstm_model = Model(inputs=cnn_input, outputs=final_output)
+
+def weighted_binary_crossentropy(weights):
+    def w_binary_crossentropy(y_true, y_pred):
+        return tf.keras.backend.mean(tf.nn.weighted_cross_entropy_with_logits(
+            y_true,
+            y_pred,
+            weights,
+            name=None
+        ), axis=-1)
+    return w_binary_crossentropy
+
+weighted_loss = weighted_binary_crossentropy(weights=5)
+
+
+def recall(y_true, y_pred):
+    y_true = math_ops.cast(y_true, 'float32')
+    y_pred = math_ops.cast(y_pred, 'float32')
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    recall = true_positives / (possible_positives + K.epsilon())
+    return recall
+
+cus_callback = []
+cus_callback.append(
+    ModelCheckpoint(
+        filepath=os.path.join("checkpoints","uav-{epoch:02d}-{val_recall:.2f}.hdf5"),
+        monitor='val_recall',
+        mode='auto',
+        save_best_only=True,
+        save_weights_only=True,
+        verbose=True
+    )
+)
+
+cnn_lstm_model.compile(optimizer='adadelta', loss=weighted_loss, metrics=[recall])
+
+cnn_lstm_model.fit(x_train, y_train,
+                    epochs=20, batch_size=32,
+                    shuffle=True,
+                    validation_data=(x_test, y_test),
+                    callbacks=cus_callback)
+
+

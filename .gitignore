@@ -20,3 +20,5 @@ test*.py
 log.*
 
 .DS_Store
+
+*.hdf5
