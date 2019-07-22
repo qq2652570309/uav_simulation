@@ -91,3 +91,8 @@ class Simulator:
     def choosePoints(self, pointsNum):
         return np.random.choice(self.row*self.column, pointsNum, replace=False)
 
+    def StatusNormalize(self):
+        self.groundTruths[self.groundTruths>=1] = 1
+        self.groundTruths[self.groundTruths!=1] = 0
+
+
