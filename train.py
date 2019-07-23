@@ -73,10 +73,7 @@ lstm_model.add(LeakyReLU(alpha=.001))
 
 
 lstm_model = Sequential()
-lstm_model.add(LSTM(2048, input_shape=(4, 1024), dropout=0.15, return_sequences=True))
-lstm_model.add(BatchNormalization())
-lstm_model.add(LSTM(1024, input_shape=(4, 1024), dropout=0.15, return_sequences=True))
-lstm_model.add(LSTM(512, dropout=0.15, return_sequences=False))
+lstm_model.add(LSTM(1024, input_shape=(4, 1024), dropout=0.15, return_sequences=False))
 lstm_model.add(Dense(1024))
 lstm_model.add(BatchNormalization())
 lstm_model.add(LeakyReLU(alpha=.001))
