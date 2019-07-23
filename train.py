@@ -19,7 +19,7 @@ from keras import backend as K
 import keras
 import numpy as np
 
-tf.logging.set_verbosity(tf.logging.ERROR)
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 
 uav_data = np.load("trainingSets.npy")
@@ -46,28 +46,31 @@ data_size = int(len(uav_data) * 0.85)
 cnn_model = Sequential()
 
 # (16, 16, 4)
-cnn_model.add(Conv2D(4, kernel_size=(2, 2),
+cnn_model.add(Conv2D(8, kernel_size=(2, 2),
                  activation='relu',
                  input_shape=(16, 16, 4)))
+cnn_model.add(Conv2D(16, kernel_size=(3, 3), activation='relu'))
+cnn_model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
+cnn_model.add(Conv2D(64, kernel_size=(3, 3), activation='relu'))
 cnn_model.add(MaxPooling2D(pool_size=(2,2)))
-cnn_model.add(Conv2D(4, kernel_size=(2, 2), activation='relu'))
-cnn_model.add(MaxPooling2D(pool_size=(2,2)))
+# cnn_model.add(Conv2D(4, kernel_size=(2, 2), activation='relu'))
+# cnn_model.add(MaxPooling2D(pool_size=(2,2)))
 cnn_model.add(Flatten())
 # cnn_model.summary()
 
 
 lstm_model = Sequential()
-lstm_model.add(LSTM(72, input_shape=(4, 36), dropout=0.15, return_sequences=True))
+lstm_model.add(LSTM(2048, input_shape=(4, 1024), dropout=0.15, return_sequences=True))
 lstm_model.add(BatchNormalization())
-lstm_model.add(LSTM(256, dropout=0.15, return_sequences=False))
-lstm_model.add(Dense(512))
-lstm_model.add(BatchNormalization())
-lstm_model.add(LeakyReLU(alpha=.001))
+# lstm_model.add(LSTM(1024, dropout=0.15, return_sequences=False))
+lstm_model.add(LSTM(1024, dropout=0.15, return_sequences=False))
+# lstm_model.add(Dense(512))
+# lstm_model.add(BatchNormalization())
+# lstm_model.add(LeakyReLU(alpha=.001))
 lstm_model.add(Dense(1024))
 lstm_model.add(BatchNormalization())
 lstm_model.add(LeakyReLU(alpha=.001))
 # lstm_model.summary()
-
 
 
 upsample_model = Sequential()
@@ -130,7 +133,7 @@ cus_callback.append(
 cnn_lstm_model.compile(optimizer='adadelta', loss=weighted_loss, metrics=[recall])
 
 cnn_lstm_model.fit(x_train, y_train,
-                    epochs=20, batch_size=32,
+                    epochs=1, batch_size=32,
                     shuffle=True,
                     validation_data=(x_test, y_test),
                     callbacks=cus_callback)
