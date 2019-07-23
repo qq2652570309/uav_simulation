@@ -84,7 +84,7 @@ lstm_model.add(LeakyReLU(alpha=.001))
 
 
 upsample_model = Sequential()
-upsample_model.add(Reshape((16, 8, 8, 1), input_shape=(1024)))
+upsample_model.add(Reshape((16, 8, 8, 1), input_shape=(1, 1024)))
 upsample_model.add(Conv3DTranspose(2, kernel_size=(4, 3, 3), activation='relu'))
 upsample_model.add(BatchNormalization())
 upsample_model.add(Conv3DTranspose(4, kernel_size=(5, 3, 3), activation='relu'))
@@ -117,7 +117,7 @@ def weighted_binary_crossentropy(weights):
         ), axis=-1)
     return w_binary_crossentropy
 
-weighted_loss = weighted_binary_crossentropy(weights=5)
+weighted_loss = weighted_binary_crossentropy(weights=2)
 
 
 def recall(y_true, y_pred):
