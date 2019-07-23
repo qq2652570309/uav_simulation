@@ -99,3 +99,7 @@ class Simulator:
         self.statusNormalize()
         self.groundTruths = self.groundTruths[:,30:,:,:]
 
+    def chooseTimeClip(self):
+        self.groundTruths = self.groundTruths[:, np.arange(0, self.groundTruths.shape[1], step=5), :,:,:]
+
+
