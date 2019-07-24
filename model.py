@@ -18,8 +18,6 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 class Cnn_Lstm_Model:
     def __init__(self, trs=None, grt=None):
-        self.model = None
-        self.prediction = None
 
         uav_data = np.load(trs)
         print('uav_data: ', uav_data.shape) # (1000, 30, 16, 16, 4)
@@ -113,21 +111,11 @@ class Cnn_Lstm_Model:
             recall = true_positives / (possible_positives + K.epsilon())
             return recall
        
-        cnn_lstm_model.load_weights('checkpoints/uav-01-0.11.hdf5')
+        # cnn_lstm_model.load_weights('checkpoints/uav-01-0.11.hdf5')
 
         cnn_lstm_model.compile(optimizer='adadelta', loss=weighted_loss, metrics=[recall])
         
-        #self.model.load_weights('checkpoints/uav-01-0.11.hdf5')
-        self.prediction = cnn_lstm_model.predict(x_test)
 
-        self.model = cnn_lstm_model
-        self.x_train = x_train
-        self.y_train = y_train
-        self.x_test = x_test
-        self.y_test = y_test
-
-
-    def train(self):
         callbacks = []
         callbacks.append(
             ModelCheckpoint(
@@ -140,24 +128,24 @@ class Cnn_Lstm_Model:
             )
         )
 
-        self.model.fit(self.x_train, self.y_train,
+        cnn_lstm_model.fit(x_train, y_train,
                     epochs=1, batch_size=32,
                     shuffle=True,
-                    validation_data=(self.x_test, self.y_test),
+                    validation_data=(x_test, y_test),
                     callbacks=callbacks)
 
-    def prediction(self):
-        self.model.load_weights('checkpoints/uav-01-0.11.hdf5')
-        self.prediction = self.model.predict(self.x_test)
+    # def prediction(self):
+    #     self.model.load_weights('checkpoints/uav-01-0.11.hdf5')
+    #     self.prediction = self.model.predict(self.x_test)
 
-    def image(self, index):
-        p = np.round(self.prediction)
-        for i in range(29):
-            cv2.imwrite('img/y{0}.png'.format(i), self.y_test[index][i] * 255)
-            cv2.imwrite('img/p{0}.png'.format(i), p[index][i] * 255)
+    # def image(self, index):
+    #     p = np.round(self.prediction)
+    #     for i in range(29):
+    #         cv2.imwrite('img/y{0}.png'.format(i), self.y_test[index][i] * 255)
+    #         cv2.imwrite('img/p{0}.png'.format(i), p[index][i] * 255)
 
 
 CSM = Cnn_Lstm_Model("data/trainingSets_overfit.npy", "data/groundTruths_overfit.npy")
 # CSM.train()
 #CSM.prediction()
-CSM.image(0)
+# CSM.image(0)
