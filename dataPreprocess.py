@@ -14,6 +14,8 @@ tsr = tsr[:1, 30:]
 print(tsr.shape)
 print(gtr.shape)
 
+
+
 tsr = np.broadcast_to(tsr, (10000, 30, 16, 16, 4))
 gtr = np.broadcast_to(gtr, (10000, 30, 16, 16))
 print(tsr.shape)

@@ -102,6 +102,7 @@ class Simulator:
         self.groundTruths[self.groundTruths>medianVal] = 1
         self.groundTruths[self.groundTruths<=medianVal] = 0
 
+
     # only save time after 30 seconds
     def dataProcess(self):
         self.statusNormalize()
