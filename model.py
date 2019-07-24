@@ -53,7 +53,7 @@ class Cnn_Lstm_Model:
         # cnn_model.add(Conv2D(4, kernel_size=(2, 2), activation='relu'))
         # cnn_model.add(MaxPooling2D(pool_size=(2,2)))
         cnn_model.add(Flatten())
-        cnn_model.summary()
+        # cnn_model.summary()
 
 
         lstm_model = Sequential()
@@ -65,8 +65,7 @@ class Cnn_Lstm_Model:
         lstm_model.add(Dense(1024))
         lstm_model.add(BatchNormalization())
         lstm_model.add(LeakyReLU(alpha=.001))
-        lstm_model.summary()
-
+        # lstm_model.summary()
 
 
         upsample_model = Sequential()
@@ -80,7 +79,7 @@ class Cnn_Lstm_Model:
         upsample_model.add(Conv3DTranspose(1, kernel_size=(5, 3, 3), activation='relu'))
         upsample_model.add(BatchNormalization())
         upsample_model.add(Reshape((30, 16, 16)))
-        upsample_model.summary()
+        # upsample_model.summary()
 
 
         # cnn_input = (?, 30, 16, 16, 4)
@@ -113,8 +112,13 @@ class Cnn_Lstm_Model:
             possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
             recall = true_positives / (possible_positives + K.epsilon())
             return recall
+       
+        cnn_lstm_model.load_weights('checkpoints/uav-01-0.11.hdf5')
 
         cnn_lstm_model.compile(optimizer='adadelta', loss=weighted_loss, metrics=[recall])
+        
+        #self.model.load_weights('checkpoints/uav-01-0.11.hdf5')
+        self.prediction = cnn_lstm_model.predict(x_test)
 
         self.model = cnn_lstm_model
         self.x_train = x_train
@@ -142,18 +146,18 @@ class Cnn_Lstm_Model:
                     validation_data=(self.x_test, self.y_test),
                     callbacks=callbacks)
 
-    def prediction(self, checkpoint):
-        self.model.load_weights(checkpoint)
+    def prediction(self):
+        self.model.load_weights('checkpoints/uav-01-0.11.hdf5')
         self.prediction = self.model.predict(self.x_test)
 
     def image(self, index):
         p = np.round(self.prediction)
-        for i in range(10):
-            cv2.imwrite('img/y{0}.png'.format(i), self.y_test[index][i])
-            cv2.imwrite('img/p{0}.png'.format(i), self.p[index][i])
+        for i in range(29):
+            cv2.imwrite('img/y{0}.png'.format(i), self.y_test[index][i] * 255)
+            cv2.imwrite('img/p{0}.png'.format(i), p[index][i] * 255)
 
 
 CSM = Cnn_Lstm_Model("data/trainingSets_overfit.npy", "data/groundTruths_overfit.npy")
 # CSM.train()
-CSM.prediction('checkpoints/uav-01-0.11.hdf5')
+#CSM.prediction()
 CSM.image(0)
