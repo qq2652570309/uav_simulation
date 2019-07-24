@@ -95,13 +95,17 @@ class Simulator:
     def choosePoints(self, pointsNum):
         return np.random.choice(self.row*self.column, pointsNum, replace=False)
 
-    def statusNormalize(self):
-        self.groundTruths[self.groundTruths>=1] = 1
-        self.groundTruths[self.groundTruths!=1] = 0
 
+    # Nomalize groundTruths, for each element, if it is less than median, assign to 0; otherwise assign to 1.
+    def statusNormalize(self):
+        medianVal = np.median(self.groundTruths[self.groundTruths!=0])
+        self.groundTruths[self.groundTruths>medianVal] = 1
+        self.groundTruths[self.groundTruths<=medianVal] = 0
+
+    # only save time after 30 seconds
     def dataProcess(self):
         self.statusNormalize()
-        self.trainingSets = self.trainingSets[:,30:,:,:]
+        self.trainingSets = self.trainingSets[:,30:,:,:,:]
         self.groundTruths = self.groundTruths[:,30:,:,:]
 
     def chooseTimeClip(self):

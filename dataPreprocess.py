@@ -1,0 +1,39 @@
+import numpy as np
+
+
+
+
+
+gtr = np.load("data/groundTruths_raw.npy")
+tsr = np.load("data/trainingSets_raw.npy")
+print(tsr.shape)
+print(gtr.shape)
+
+gtr = gtr[:1, 30:]
+tsr = tsr[:1, 30:]
+print(tsr.shape)
+print(gtr.shape)
+
+tsr = np.broadcast_to(tsr, (10000, 30, 16, 16, 4))
+gtr = np.broadcast_to(gtr, (10000, 30, 16, 16))
+print(tsr.shape)
+print(gtr.shape)
+
+
+
+
+
+# np.save('data/trainingSets_overfit.npy', tsr)
+# np.save('data/groundTruths_overfit.npy', gtr)
+
+
+# a1 = gtr[0]
+# a2 = gtr[10]
+# a3 = gtr[100]
+# a4 = gtr[1000]
+
+# print(np.all(a1==a2))
+# print(np.all(a1==a3))
+# print(np.all(a1==a4))
+# print(np.all(a3==a2))
+
