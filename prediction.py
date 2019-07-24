@@ -19,6 +19,7 @@ from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
 from tensorflow.keras import backend as K
 # import keras
 import numpy as np
+import cv2
 
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
@@ -128,12 +129,15 @@ cus_callback.append(
     )
 )
 
+cnn_lstm_model.load_weights('checkpoints/uav-01-0.73.hdf5')
+
 cnn_lstm_model.compile(optimizer='adadelta', loss=weighted_loss, metrics=[recall])
 
-cnn_lstm_model.fit(x_train, y_train,
-                    epochs=1, batch_size=32,
-                    shuffle=True,
-                    validation_data=(x_test, y_test),
-                    callbacks=cus_callback)
+p = cnn_lstm_model.predict(x_test)
 
+p *= 255
+y_test *= 255
 
+for i in range(10):
+    cv2.imwrite('img/x{0}.png'.format(i), y_test[0][i])
+    cv2.imwrite('img/p{0}.png'.format(i), p[0][i])

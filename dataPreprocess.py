@@ -14,6 +14,17 @@ tsr = tsr[:1, 30:]
 print(tsr.shape)
 print(gtr.shape)
 
+m= np.median(gtr[gtr!=0])
+print('median:',m)
+gtr[gtr<=m] = 0
+gtr[gtr>m] = 1
+
+
+one = gtr[gtr>0].size
+zero = gtr[gtr==0].size
+print('zero:',zero)
+print('one:',one)
+print('weight:',zero/one)
 
 
 tsr = np.broadcast_to(tsr, (10000, 30, 16, 16, 4))
@@ -22,11 +33,8 @@ print(tsr.shape)
 print(gtr.shape)
 
 
-
-
-
-# np.save('data/trainingSets_overfit.npy', tsr)
-# np.save('data/groundTruths_overfit.npy', gtr)
+np.save('data/trainingSets_overfit.npy', tsr)
+np.save('data/groundTruths_overfit.npy', gtr)
 
 
 # a1 = gtr[0]
