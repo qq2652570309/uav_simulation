@@ -101,6 +101,7 @@ class Simulator:
 
     def dataProcess(self):
         self.statusNormalize()
+        self.trainingSets = self.trainingSets[:,30:,:,:]
         self.groundTruths = self.groundTruths[:,30:,:,:]
 
     def chooseTimeClip(self):

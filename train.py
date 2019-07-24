@@ -22,7 +22,7 @@ import numpy as np
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 
-uav_data = np.load("trainingSets.npy")
+uav_data = np.load("trainingSets1.npy")
 print('raw uav_data: ', uav_data.shape) # (1000, 30, 16, 16, 4)
 
 uav_label = np.load("groundTruths.npy")
@@ -44,7 +44,6 @@ data_size = int(len(uav_data) * 0.85)
 
 
 cnn_model = Sequential()
-# (7, 7, 4)
 cnn_model.add(Conv2D(8, kernel_size=(2, 2),
                  activation='relu',
                  input_shape=(16, 16, 4)))
@@ -55,28 +54,24 @@ cnn_model.add(MaxPooling2D(pool_size=(2,2)))
 # cnn_model.add(Conv2D(4, kernel_size=(2, 2), activation='relu'))
 # cnn_model.add(MaxPooling2D(pool_size=(2,2)))
 cnn_model.add(Flatten())
-# cnn_model.summary()
+cnn_model.summary()
 
 
 lstm_model = Sequential()
-lstm_model.add(LSTM(2048, input_shape=(4, 1024), dropout=0.15, return_sequences=False))
+lstm_model.add(LSTM(4096, input_shape=(30, 1024), dropout=0.15, return_sequences=False))
 lstm_model.add(BatchNormalization())
+lstm_model.add(Dense(2048))
+lstm_model.add(BatchNormalization())
+lstm_model.add(LeakyReLU(alpha=.001))
 lstm_model.add(Dense(1024))
 lstm_model.add(BatchNormalization())
 lstm_model.add(LeakyReLU(alpha=.001))
-# lstm_model.summary()
+lstm_model.summary()
 
-
-lstm_model = Sequential()
-lstm_model.add(LSTM(1024, input_shape=(4, 1024), dropout=0.15, return_sequences=False))
-lstm_model.add(Dense(1024))
-lstm_model.add(BatchNormalization())
-lstm_model.add(LeakyReLU(alpha=.001))
-# lstm_model.summary()
 
 
 upsample_model = Sequential()
-upsample_model.add(Reshape((16, 8, 8, 1), input_shape=(1, 1024)))
+upsample_model.add(Reshape((16, 8, 8, 1), input_shape=(None, 1024)))
 upsample_model.add(Conv3DTranspose(2, kernel_size=(4, 3, 3), activation='relu'))
 upsample_model.add(BatchNormalization())
 upsample_model.add(Conv3DTranspose(4, kernel_size=(5, 3, 3), activation='relu'))
@@ -86,7 +81,7 @@ upsample_model.add(BatchNormalization())
 upsample_model.add(Conv3DTranspose(1, kernel_size=(5, 3, 3), activation='relu'))
 upsample_model.add(BatchNormalization())
 upsample_model.add(Reshape((30, 16, 16)))
-# upsample_model.summary()
+upsample_model.summary()
 
 
 # cnn_input = (?, 30, 16, 16, 4)
