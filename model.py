@@ -1,5 +1,4 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"]="2"
 import tensorflow as tf
 from tensorflow.python.ops import math_ops
 from tensorflow.keras.layers import Input, Dense, Conv2D, MaxPooling2D, Dropout, LSTM, Conv2DTranspose, Conv3DTranspose
@@ -12,12 +11,15 @@ from tensorflow.keras.datasets import mnist
 from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
 from tensorflow.keras import backend as K
 import numpy as np
+import cv2
 
+os.environ["CUDA_VISIBLE_DEVICES"]="2"
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 class Cnn_Lstm_Model:
     def __init__(self, trs=None, grt=None):
         self.model = None
+        self.prediction = None
 
         uav_data = np.load(trs)
         print('uav_data: ', uav_data.shape) # (1000, 30, 16, 16, 4)
@@ -140,11 +142,18 @@ class Cnn_Lstm_Model:
                     validation_data=(self.x_test, self.y_test),
                     callbacks=callbacks)
 
-    def prediction(self):
-        p = self.model.predict(self.x_test)
-        return p
+    def prediction(self, checkpoint):
+        self.model.load_weights(checkpoint)
+        self.prediction = self.model.predict(self.x_test)
 
+    def image(self, index):
+        p = np.round(self.prediction)
+        for i in range(10):
+            cv2.imwrite('img/y{0}.png'.format(i), self.y_test[index][i])
+            cv2.imwrite('img/p{0}.png'.format(i), self.p[index][i])
 
 
 CSM = Cnn_Lstm_Model("data/trainingSets_overfit.npy", "data/groundTruths_overfit.npy")
-CSM.train()
+# CSM.train()
+CSM.prediction('checkpoints/uav-01-0.11.hdf5')
+CSM.image(0)
