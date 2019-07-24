@@ -146,5 +146,5 @@ class Cnn_Lstm_Model:
 
 
 
-CSM = Cnn_Lstm_Model("trainingSets_overfit.npy", "groundTruths_overfit.npy")
+CSM = Cnn_Lstm_Model("data/trainingSets_overfit.npy", "data/groundTruths_overfit.npy")
 CSM.train()
