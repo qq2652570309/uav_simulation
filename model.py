@@ -16,14 +16,14 @@ import numpy as np
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 class Cnn_Lstm_Model:
-    def __init__(self):
+    def __init__(self, trs=None, grt=None):
         self.model = None
 
-        uav_data = np.load("trainingSets1.npy")
-        print('raw uav_data: ', uav_data.shape) # (1000, 30, 16, 16, 4)
+        uav_data = np.load(trs)
+        print('uav_data: ', uav_data.shape) # (1000, 30, 16, 16, 4)
 
-        uav_label = np.load("groundTruths.npy")
-        print('raw uav_label: ', uav_label.shape) # (1000, 30, 16, 16)
+        uav_label = np.load(grt)
+        print('uav_label: ', uav_label.shape) # (1000, 30, 16, 16)
 
         # uav_label = (uav_label - np.min(uav_label)) / np.max(uav_label) - np.min(uav_label)
         # print('uav_label min: ', np.min(uav_label))
@@ -55,7 +55,7 @@ class Cnn_Lstm_Model:
 
 
         lstm_model = Sequential()
-        lstm_model.add(LSTM(4096, input_shape=(30, 1024), dropout=0.15, return_sequences=False))
+        lstm_model.add(LSTM(4096, input_shape=(30, 1024), dropout=0.0, return_sequences=False))
         lstm_model.add(BatchNormalization())
         lstm_model.add(Dense(2048))
         lstm_model.add(BatchNormalization())
@@ -101,7 +101,7 @@ class Cnn_Lstm_Model:
                 ), axis=-1)
             return w_binary_crossentropy
 
-        weighted_loss = weighted_binary_crossentropy(weights=2)
+        weighted_loss = weighted_binary_crossentropy(weights=4)
 
 
         def recall(y_true, y_pred):
@@ -115,6 +115,36 @@ class Cnn_Lstm_Model:
         cnn_lstm_model.compile(optimizer='adadelta', loss=weighted_loss, metrics=[recall])
 
         self.model = cnn_lstm_model
+        self.x_train = x_train
+        self.y_train = y_train
+        self.x_test = x_test
+        self.y_test = y_test
+
 
     def train(self):
-        
+        callbacks = []
+        callbacks.append(
+            ModelCheckpoint(
+                filepath=os.path.join("checkpoints","uav-{epoch:02d}-{val_recall:.2f}.hdf5"),
+                monitor='val_recall',
+                mode='auto',
+                save_best_only=True,
+                save_weights_only=True,
+                verbose=True
+            )
+        )
+
+        self.model.fit(self.x_train, self.y_train,
+                    epochs=1, batch_size=32,
+                    shuffle=True,
+                    validation_data=(self.x_test, self.y_test),
+                    callbacks=callbacks)
+
+    def prediction(self):
+        p = self.model.predict(self.x_test)
+        return p
+
+
+
+CSM = Cnn_Lstm_Model("trainingSets_overfit.npy", "groundTruths_overfit.npy")
+CSM.train()
