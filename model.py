@@ -53,11 +53,11 @@ class Cnn_Lstm_Model:
         cnn_model.add(Flatten())
         # cnn_model.summary()
 
-
+        # (30*1024) = 2^15, 16384 = 2^14, 4096 = 2^12, 2014 = 2^10 
         lstm_model = Sequential()
-        lstm_model.add(LSTM(4096, input_shape=(30, 1024), dropout=0.0, return_sequences=False))
+        lstm_model.add(LSTM(16384, input_shape=(30, 1024), dropout=0.0, return_sequences=False))
         lstm_model.add(BatchNormalization())
-        lstm_model.add(Dense(2048))
+        lstm_model.add(Dense(4096))
         lstm_model.add(BatchNormalization())
         lstm_model.add(LeakyReLU(alpha=.001))
         lstm_model.add(Dense(1024))
@@ -129,7 +129,7 @@ class Cnn_Lstm_Model:
         )
 
         cnn_lstm_model.fit(x_train, y_train,
-                    epochs=1, batch_size=32,
+                    epochs=2, batch_size=32,
                     shuffle=True,
                     validation_data=(x_test, y_test),
                     callbacks=callbacks)
