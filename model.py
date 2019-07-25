@@ -103,6 +103,9 @@ class Cnn_Lstm_Model:
 
         weighted_loss = weighted_binary_crossentropy(weights=4)
 
+        def weighted_mean_squared_error(y_true, y_pred):
+            return K.mean(K.square(4*(y_pred - y_true)), axis=-1)
+
 
         def recall(y_true, y_pred):
             y_true = math_ops.cast(y_true, 'float32')
@@ -117,7 +120,7 @@ class Cnn_Lstm_Model:
         # cnn_lstm_model.compile(optimizer='adadelta', loss=weighted_loss, metrics=[recall])
         cnn_lstm_model.compile(
             optimizer='adadelta',
-            loss='mean_squared_error',
+            loss=weighted_mean_squared_error,
             metrics=[metrics.mae, metrics.categorical_accuracy]
         )
         
