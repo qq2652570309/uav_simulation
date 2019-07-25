@@ -113,7 +113,12 @@ class Cnn_Lstm_Model:
        
         # cnn_lstm_model.load_weights('checkpoints/uav-01-0.11.hdf5')
 
-        cnn_lstm_model.compile(optimizer='adadelta', loss=weighted_loss, metrics=[recall])
+        # cnn_lstm_model.compile(optimizer='adadelta', loss=weighted_loss, metrics=[recall])
+        cnn_lstm_model.compile(
+            optimizer='adadelta',
+            loss='mean_squared_error',
+            metrics=[metrics.mae, metrics.categorical_accuracy]
+        )
         
 
         callbacks = []
