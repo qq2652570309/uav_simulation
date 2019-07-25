@@ -154,7 +154,7 @@ class Cnn_Lstm_Model:
     #         cv2.imwrite('img/p{0}.png'.format(i), p[index][i] * 255)
 
 
-CSM = Cnn_Lstm_Model("data/trainingSets_overfit.npy", "data/groundTruths_overfit.npy")
+CSM = Cnn_Lstm_Model("data/trainingSets_overfit_one.npy", "data/groundTruths_overfit_one.npy")
 # CSM.train()
 #CSM.prediction()
 # CSM.image(0)
