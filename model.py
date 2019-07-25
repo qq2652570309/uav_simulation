@@ -121,15 +121,15 @@ class Cnn_Lstm_Model:
         cnn_lstm_model.compile(
             optimizer='adadelta',
             loss=weighted_mean_squared_error,
-            metrics=[metrics.mae, metrics.categorical_accuracy]
+            metrics=[metrics.mae]
         )
         
 
         callbacks = []
         callbacks.append(
             ModelCheckpoint(
-                filepath=os.path.join("checkpoints","uav-{epoch:02d}-{val_recall:.2f}.hdf5"),
-                monitor='val_recall',
+                filepath=os.path.join("checkpoints","uav-{epoch:02d}-{metrics.mae:.2f}.hdf5"),
+                monitor='metrics.mae',
                 mode='auto',
                 save_best_only=True,
                 save_weights_only=True,
