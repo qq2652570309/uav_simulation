@@ -36,17 +36,17 @@ print(gtr.shape)
 
 # np.save('data/trainingSets_overfit.npy', tsr)
 # np.save('data/groundTruths_overfit.npy', gtr)
-np.save('data/trainingSets_overfit_one.npy', tsr)
-np.save('data/groundTruths_overfit_one.npy', gtr)
+# np.save('data/trainingSets_overfit_one.npy', tsr)
+# np.save('data/groundTruths_overfit_one.npy', gtr)
 
 
-# a1 = gtr[0]
-# a2 = gtr[10]
-# a3 = gtr[100]
-# a4 = gtr[1000]
+a1 = gtr[0]
+a2 = gtr[10]
+a3 = gtr[100]
+a4 = gtr[1000]
 
-# print(np.all(a1==a2))
-# print(np.all(a1==a3))
-# print(np.all(a1==a4))
-# print(np.all(a3==a2))
+print(np.all(a1==a2))
+print(np.all(a1==a3))
+print(np.all(a1==a4))
+print(np.all(a3==a2))
 

@@ -101,7 +101,7 @@ class Cnn_Lstm_Model:
                 ), axis=-1)
             return w_binary_crossentropy
 
-        weighted_loss = weighted_binary_crossentropy(weights=4)
+        weighted_loss = weighted_binary_crossentropy(weights=1)
 
         def weighted_mean_squared_error(y_true, y_pred):
             return K.mean(K.square(4*(y_pred - y_true)), axis=-1)
