@@ -11,7 +11,7 @@ from tensorflow.keras.datasets import mnist
 from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
 from tensorflow.keras import backend as K
 import numpy as np
-import cv2
+# import cv2
 
 os.environ["CUDA_VISIBLE_DEVICES"]="2"
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
@@ -46,24 +46,24 @@ class Cnn_Lstm_Model:
                         input_shape=(16, 16, 4)))
         cnn_model.add(Conv2D(16, kernel_size=(3, 3), activation='relu'))
         cnn_model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
-        cnn_model.add(Conv2D(64, kernel_size=(3, 3), activation='relu'))
+        cnn_model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
         cnn_model.add(MaxPooling2D(pool_size=(2,2)))
         # cnn_model.add(Conv2D(4, kernel_size=(2, 2), activation='relu'))
         # cnn_model.add(MaxPooling2D(pool_size=(2,2)))
         cnn_model.add(Flatten())
-        # cnn_model.summary()
+        cnn_model.summary()
 
         # (30*1024) = 2^15, 16384 = 2^14, 4096 = 2^12, 2014 = 2^10 
         lstm_model = Sequential()
-        lstm_model.add(LSTM(16384, input_shape=(30, 1024), dropout=0.0, return_sequences=False))
+        lstm_model.add(LSTM(4096, input_shape=(30, 512), dropout=0.0, return_sequences=False))
         lstm_model.add(BatchNormalization())
-        lstm_model.add(Dense(4096))
+        lstm_model.add(Dense(2048))
         lstm_model.add(BatchNormalization())
         lstm_model.add(LeakyReLU(alpha=.001))
         lstm_model.add(Dense(1024))
         lstm_model.add(BatchNormalization())
         lstm_model.add(LeakyReLU(alpha=.001))
-        # lstm_model.summary()
+        lstm_model.summary()
 
 
         upsample_model = Sequential()
