@@ -16,9 +16,10 @@ print(gtr.shape)
 
 m= np.median(gtr[gtr!=0])
 print('median:',m)
-gtr[gtr<=m] = 0
-gtr[gtr>m] = 1
-
+# gtr[gtr<=m] = 0
+# gtr[gtr>m] = 1
+gtr[gtr<m] = 0
+gtr[gtr>=m] = 1
 
 one = gtr[gtr>0].size
 zero = gtr[gtr==0].size
@@ -33,8 +34,10 @@ print(tsr.shape)
 print(gtr.shape)
 
 
-np.save('data/trainingSets_overfit.npy', tsr)
-np.save('data/groundTruths_overfit.npy', gtr)
+# np.save('data/trainingSets_overfit.npy', tsr)
+# np.save('data/groundTruths_overfit.npy', gtr)
+np.save('data/trainingSets_overfit_one.npy', tsr)
+np.save('data/groundTruths_overfit_one.npy', gtr)
 
 
 # a1 = gtr[0]

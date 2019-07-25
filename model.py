@@ -52,7 +52,7 @@ class Cnn_Lstm_Model:
         # cnn_model.add(Conv2D(4, kernel_size=(2, 2), activation='relu'))
         # cnn_model.add(MaxPooling2D(pool_size=(2,2)))
         cnn_model.add(Flatten())
-        cnn_model.summary()
+        # cnn_model.summary()
 
         # (30*1024) = 2^15, 16384 = 2^14, 4096 = 2^12, 2014 = 2^10 
         lstm_model = Sequential()
@@ -64,7 +64,7 @@ class Cnn_Lstm_Model:
         lstm_model.add(Dense(1024))
         lstm_model.add(BatchNormalization())
         lstm_model.add(LeakyReLU(alpha=.001))
-        lstm_model.summary()
+        # lstm_model.summary()
 
 
         upsample_model = Sequential()
@@ -117,19 +117,19 @@ class Cnn_Lstm_Model:
        
         # cnn_lstm_model.load_weights('checkpoints/uav-01-0.11.hdf5')
 
-        # cnn_lstm_model.compile(optimizer='adadelta', loss=weighted_loss, metrics=[recall])
-        cnn_lstm_model.compile(
-            optimizer='adadelta',
-            loss=weighted_mean_squared_error,
-            metrics=[metrics.mae]
-        )
+        cnn_lstm_model.compile(optimizer='adadelta', loss=weighted_loss, metrics=[recall])
+        # cnn_lstm_model.compile(
+        #     optimizer='adadelta',
+        #     loss=weighted_mean_squared_error,
+        #     metrics=[metrics.mae]
+        # )
         
 
         callbacks = []
         callbacks.append(
             ModelCheckpoint(
-                filepath=os.path.join("checkpoints","uav-{epoch:02d}-{metrics.mae:.2f}.hdf5"),
-                monitor='metrics.mae',
+                filepath=os.path.join("checkpoints","uav-{epoch:02d}-{val_recall:.2f}.hdf5"),
+                monitor='val_recall',
                 mode='auto',
                 save_best_only=True,
                 save_weights_only=True,
