@@ -42,9 +42,8 @@ class Cnn_Lstm_Model:
         (x_test, y_test) = uav_data[data_size:], uav_label[data_size:]
 
 
-
         cnn_model = Sequential()
-        cnn_model.add(Conv2D(8, kernel_size=(2, 2),
+        cnn_model.add(Conv2D(8, kernel_size=(3, 3),
                         activation='relu',
                         input_shape=(16, 16, 4)))
         cnn_model.add(Conv2D(16, kernel_size=(3, 3), activation='relu'))
@@ -54,44 +53,47 @@ class Cnn_Lstm_Model:
         # cnn_model.add(Conv2D(4, kernel_size=(2, 2), activation='relu'))
         # cnn_model.add(MaxPooling2D(pool_size=(2,2)))
         cnn_model.add(Flatten())
-        # cnn_model.summary()
+        cnn_model.summary()
 
         # (30*1024) = 2^15, 16384 = 2^14, 4096 = 2^12, 2014 = 2^10 
         lstm_model = Sequential()
-        lstm_model.add(LSTM(4096, input_shape=(30, 512), dropout=0.0, return_sequences=False))
-        lstm_model.add(BatchNormalization())
-        lstm_model.add(Dense(2048))
-        lstm_model.add(BatchNormalization())
-        lstm_model.add(LeakyReLU(alpha=.001))
-        lstm_model.add(Dense(1024))
-        lstm_model.add(BatchNormalization())
-        lstm_model.add(LeakyReLU(alpha=.001))
-        # lstm_model.summary()
+        lstm_model.add(LSTM(512, input_shape=(30, 512), dropout=0.0, return_sequences=True))
+        lstm_model.add(TimeDistributed(Dense(256)))
+        lstm_model.add(TimeDistributed(Reshape((16, 16))))
+        # lstm_model.add(Reshape((30, 16, 16)))
+
+        # lstm_model.add(BatchNormalization())
+        # lstm_model.add(Dense(2048))
+        # lstm_model.add(BatchNormalization())
+        # lstm_model.add(LeakyReLU(alpha=.001))
+        # lstm_model.add(Dense(1024))
+        # lstm_model.add(BatchNormalization())
+        # lstm_model.add(LeakyReLU(alpha=.001))
+        lstm_model.summary()
 
 
-        upsample_model = Sequential()
-        upsample_model.add(Reshape((16, 8, 8, 1), input_shape=(1, 1024)))
-        upsample_model.add(Conv3DTranspose(2, kernel_size=(4, 3, 3), activation='relu'))
-        upsample_model.add(BatchNormalization())
-        upsample_model.add(Conv3DTranspose(4, kernel_size=(5, 3, 3), activation='relu'))
-        upsample_model.add(BatchNormalization())
-        upsample_model.add(Conv3DTranspose(2, kernel_size=(4, 3, 3), activation='relu'))
-        upsample_model.add(BatchNormalization())
-        upsample_model.add(Conv3DTranspose(1, kernel_size=(5, 3, 3), activation='relu'))
-        upsample_model.add(BatchNormalization())
-        upsample_model.add(Reshape((30, 16, 16)))
+        # upsample_model = Sequential()
+        # upsample_model.add(Reshape((16, 8, 8, 1), input_shape=(1, 1024)))
+        # upsample_model.add(Conv3DTranspose(2, kernel_size=(4, 3, 3), activation='relu'))
+        # upsample_model.add(BatchNormalization())
+        # upsample_model.add(Conv3DTranspose(4, kernel_size=(5, 3, 3), activation='relu'))
+        # upsample_model.add(BatchNormalization())
+        # upsample_model.add(Conv3DTranspose(2, kernel_size=(4, 3, 3), activation='relu'))
+        # upsample_model.add(BatchNormalization())
+        # upsample_model.add(Conv3DTranspose(1, kernel_size=(5, 3, 3), activation='relu'))
+        # upsample_model.add(BatchNormalization())
+        # upsample_model.add(Reshape((30, 16, 16)))
         # upsample_model.summary()
 
 
         # cnn_input = (?, 30, 16, 16, 4)
-
         cnn_input = Input(shape=uav_data[0].shape)
         print('input shape: ',cnn_input.shape) # (?, 30, 16, 16, 4)
         lstm_input = TimeDistributed(cnn_model)(cnn_input)
         lstm_output = lstm_model(lstm_input)
-        final_output = upsample_model(lstm_output)
+        # final_output = upsample_model(lstm_output)
 
-        cnn_lstm_model = Model(inputs=cnn_input, outputs=final_output)
+        cnn_lstm_model = Model(inputs=cnn_input, outputs=lstm_output)
 
         def weighted_binary_crossentropy(weights):
             def w_binary_crossentropy(y_true, y_pred):
@@ -149,10 +151,10 @@ class Cnn_Lstm_Model:
         )
         history = LossHistory()
         callbacks.append(history)
+        
         '''
-
         cnn_lstm_model.fit(x_train, y_train,
-                    epochs=5, batch_size=32,
+                    epochs=1, batch_size=32,
                     shuffle=True,
                     validation_data=(x_test, y_test),
                     callbacks=callbacks)
@@ -161,21 +163,21 @@ class Cnn_Lstm_Model:
         logger = logging.getLogger()
         logging.basicConfig(filename='log.txt', format='%(levelname)s:%(message)s', level=logging.INFO)
         logging.info(history.losses)
+        
 
         '''
-
-        cnn_lstm_model.load_weights('checkpoints/uav-05-0.68.hdf5')
+        cnn_lstm_model.load_weights('checkpoints/uav-01-1.00.hdf5')
         prediction = cnn_lstm_model.predict(x_test)
 
         import cv2
         p = np.round(prediction)
-        for i in range(29):
+        for i in range(30):
             cv2.imwrite('img/y{0}.png'.format(i), y_test[0][i] * 255)
             cv2.imwrite('img/p{0}.png'.format(i), p[0][i] * 255)
         
 
 
-CSM = Cnn_Lstm_Model("data/trainingSets_overfit_15.npy", "data/groundTruths_overfit_15.npy")
+CSM = Cnn_Lstm_Model("data/trainingSets_overfit.npy", "data/groundTruths_overfit.npy")
 # CSM.train()
 #CSM.prediction()
 # CSM.image(0)
