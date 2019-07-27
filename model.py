@@ -12,7 +12,7 @@ from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
 from tensorflow.keras import backend as K
 from tensorflow.keras import metrics
 import numpy as np
-# import cv2
+
 
 os.environ["CUDA_VISIBLE_DEVICES"]="2"
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
@@ -21,9 +21,11 @@ class Cnn_Lstm_Model:
     def __init__(self, trs=None, grt=None):
 
         uav_data = np.load(trs)
+        # uav_data = uav_data[:2]
         print('uav_data: ', uav_data.shape) # (1000, 30, 16, 16, 4)
 
         uav_label = np.load(grt)
+        # uav_label = uav_label[:2]
         print('uav_label: ', uav_label.shape) # (1000, 30, 16, 16)
 
         # uav_label = (uav_label - np.min(uav_label)) / np.max(uav_label) - np.min(uav_label)
@@ -101,7 +103,7 @@ class Cnn_Lstm_Model:
                 ), axis=-1)
             return w_binary_crossentropy
 
-        weighted_loss = weighted_binary_crossentropy(weights=1)
+        weighted_loss = weighted_binary_crossentropy(weights=4)
 
         def weighted_mean_squared_error(y_true, y_pred):
             return K.mean(K.square(4*(y_pred - y_true)), axis=-1)
@@ -124,37 +126,56 @@ class Cnn_Lstm_Model:
         #     metrics=[metrics.mae]
         # )
         
+        class LossHistory(tf.keras.callbacks.Callback):
+            def on_train_begin(self, logs={}):
+                self.losses = []
 
+            def on_batch_end(self, batch, logs={}):
+                if logs.get('val_recall'):
+                    self.losses.append((logs.get('recall'),logs.get('val_recall')))
+                else:
+                    self.losses.append((logs.get('recall')))
+        
         callbacks = []
         callbacks.append(
             ModelCheckpoint(
                 filepath=os.path.join("checkpoints","uav-{epoch:02d}-{val_recall:.2f}.hdf5"),
                 monitor='val_recall',
                 mode='auto',
-                save_best_only=True,
+                save_best_only=False,
                 save_weights_only=True,
                 verbose=True
             )
         )
+        history = LossHistory()
+        callbacks.append(history)
+        '''
 
         cnn_lstm_model.fit(x_train, y_train,
-                    epochs=2, batch_size=32,
+                    epochs=5, batch_size=32,
                     shuffle=True,
                     validation_data=(x_test, y_test),
                     callbacks=callbacks)
 
-    # def prediction(self):
-    #     self.model.load_weights('checkpoints/uav-01-0.11.hdf5')
-    #     self.prediction = self.model.predict(self.x_test)
+        import logging
+        logger = logging.getLogger()
+        logging.basicConfig(filename='log.txt', format='%(levelname)s:%(message)s', level=logging.INFO)
+        logging.info(history.losses)
 
-    # def image(self, index):
-    #     p = np.round(self.prediction)
-    #     for i in range(29):
-    #         cv2.imwrite('img/y{0}.png'.format(i), self.y_test[index][i] * 255)
-    #         cv2.imwrite('img/p{0}.png'.format(i), p[index][i] * 255)
+        '''
+
+        cnn_lstm_model.load_weights('checkpoints/uav-05-0.68.hdf5')
+        prediction = cnn_lstm_model.predict(x_test)
+
+        import cv2
+        p = np.round(prediction)
+        for i in range(29):
+            cv2.imwrite('img/y{0}.png'.format(i), y_test[0][i] * 255)
+            cv2.imwrite('img/p{0}.png'.format(i), p[0][i] * 255)
+        
 
 
-CSM = Cnn_Lstm_Model("data/trainingSets_overfit_one.npy", "data/groundTruths_overfit_one.npy")
+CSM = Cnn_Lstm_Model("data/trainingSets_overfit_15.npy", "data/groundTruths_overfit_15.npy")
 # CSM.train()
 #CSM.prediction()
 # CSM.image(0)
