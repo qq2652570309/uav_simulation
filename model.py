@@ -138,7 +138,7 @@ class Cnn_Lstm_Model:
                 monitor='val_recall',
                 # filepath=os.path.join("checkpoints","uav-{epoch:02d}-{val_mean_absolute_error:.2f}.hdf5"),
                 # monitor='val_mean_absolute_error',
-                mode='auto',
+                mode='max',
                 save_best_only=True,
                 save_weights_only=True,
                 verbose=True
@@ -153,26 +153,26 @@ class Cnn_Lstm_Model:
                     callbacks=callbacks)
     
 
-    def predict(self, ckpt, num):
+    def predict(self, ckpt, index, num):
         y_test = self.y_test
         x_test = self.x_test
         self.model.load_weights('checkpoints/{0}.hdf5'.format(ckpt))
         self.configure()
         prediction = self.model.predict(x_test)
 
-        import cv2
         p = np.round(prediction)
 
-        l = len(y_test)
-        if l < num or num < 0:
+        l = len(y_test[index])
+        if l <= num or num < 0:
             num = l
 
+        import cv2
         for i in range(num):
-            cv2.imwrite('img/y{0}.png'.format(i), y_test[i] * 255)
-            cv2.imwrite('img/p{0}.png'.format(i), p[i] * 255)
+            cv2.imwrite('img/y{0}.png'.format(i), y_test[index][i] * 255)
+            cv2.imwrite('img/p{0}.png'.format(i), p[index][i] * 255)
     
 
-    def meanDensityMap(self):
+    def meanDensityMap(self, ckpt):
         y_test = self.y_test
         x_test = self.x_test
         self.model.load_weights('checkpoints/{0}.hdf5'.format(ckpt))
@@ -184,13 +184,15 @@ class Cnn_Lstm_Model:
         y = np.sum(y_test, axis=1)
         y = y / y_test.shape[1]
 
+        import cv2
         for i in range(10):
             cv2.imwrite('img/y{0}.png'.format(i), y[i] * 255)
             cv2.imwrite('img/p{0}.png'.format(i), p[i] * 255)
 
 
-CSM = Cnn_Lstm_Model("data/trainingSets_overfit.npy", "data/groundTruths_overfit.npy", 15)
-CSM.train()
-# CSM.predict('uav-15-0.23', 10)
+CSM = Cnn_Lstm_Model("data/trainingSets_overfit.npy", "data/groundTruths_overfit.npy", 5)
+# CSM.train()
+# CSM.predict('uav-02-1.00', 0, -1)
+CSM.meanDensityMap('uav-02-1.00')
 
 
