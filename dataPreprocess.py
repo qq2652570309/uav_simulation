@@ -7,7 +7,7 @@ class Preprocess:
         self.gtr = np.load("data/groundTruths_raw.npy")
         self.tsr = np.load("data/trainingSets_raw.npy")
         print('raw groundTruth: ', self.tsr.shape)
-        print('raw  trainingSets', self.gtr.shape)
+        print('raw trainingSets', self.gtr.shape)
 
     # only save the first sample after 30 seconds
     def from30toEnd(self):
@@ -54,7 +54,7 @@ class Preprocess:
     # broadcast one sample to many 
     def broadCast(self):
         self.tsr = np.broadcast_to(self.tsr, (10000, 30, 16, 16, 4))
-        self.gtr = np.broadcast_to(self.gtr, (10000, 16, 16))
+        self.gtr = np.broadcast_to(self.gtr, (10000, 30, 16, 16))
         print(self.tsr.shape)
         print(self.gtr.shape)
 
@@ -74,3 +74,9 @@ class Preprocess:
         print(np.all(a3==a2))
 
 p = Preprocess()
+p.from30toEnd()
+p.oneOrZero()
+p.computeWeights()
+p.broadCast()
+p.checkGroundTruthIdentical()
+p.saveData()
