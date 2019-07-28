@@ -1,70 +1,76 @@
 import numpy as np
 
 
-gtr = np.load("data/groundTruths_raw.npy")
-tsr = np.load("data/trainingSets_raw.npy")
-print(tsr.shape)
-print(gtr.shape)
+class Preprocess:
 
-gtr = gtr[:1, 30:]
-tsr = tsr[:1, 30:]
-print(tsr.shape)
-print(gtr.shape)
+    def __init__(self):
+        self.gtr = np.load("data/groundTruths_raw.npy")
+        self.tsr = np.load("data/trainingSets_raw.npy")
+        print('raw groundTruth: ', self.tsr.shape)
+        print('raw  trainingSets', self.gtr.shape)
 
-gtr29 = gtr[:,:-1]
-print('path size: ', gtr29.shape)
-gtrLast = gtr[:, -1:]
-print('density size: ', gtrLast.shape)
+    # only save the first sample after 30 seconds
+    def from30toEnd(self):
+        self.gtr = self.gtr[:1, 30:]
+        self.tsr = self.tsr[:1, 30:]
+        print(self.tsr.shape)
+        print(self.gtr.shape)
 
-
-m = np.median(gtr29[gtr29!=0])
-print('median:',m)
-gtr29[gtr29<m] = 0
-gtr29[gtr29>=m] = 1
-
-
-# 29 * 16 * 16 = 7424
-# 5782 + 1642  = 7424
-one = gtr29[gtr29>0].size
-zero = gtr29[gtr29==0].size
-print('zero:',zero)
-print('one:',one)
-print('weight:',zero/one)
-
-# Normalize groud truth at the last second
-gtr[0, -1] = (gtrLast - np.min(gtrLast)) / np.max(gtrLast) - np.min(gtrLast)
-print('gtrLast min: ', np.min(gtrLast))
-print('gtrLast max: ', np.max(gtrLast))
-print('gtrLast mean: ', np.mean(gtrLast))
-print('gtrLast median: ', np.median(gtrLast))
+    # switch all elements to zero or one 
+    def oneOrZero(self):
+        m = np.median(self.gtr[self.gtr!=0])
+        print('median:',m)
+        # self.gtr[self.gtr<=m] = 0
+        # self.gtr[self.gtr>m] = 1
+        self.gtr[self.gtr<m] = 0
+        self.gtr[self.gtr>=m] = 1
 
 
-# the 0-28th timesteps are in range 0-1 and the last one is density 
-'''
-print(gtr[0, 27])
-print()
-print(gtr[0, 28])
-print()
-print(gtr[0, 29])
-'''
+    # ground truth only save the last second (the 30th second)
+    def lastSecond(self):
+        gtr1 = self.gtr[:,29:,:,:].reshape((1, 16, 16))
+        print('self.gtr[:,29:,:,:]: ', self.gtr[:,29:,:,:].shape)
+        print('gtr1: ', gtr1.shape)
+        print('self.gtr == gtr1:', np.all(gtr1==self.gtr[:,29]))
+        self.gtr = gtr1
+
+    # print number of non-zeros and zeros
+    def computeWeights(self):
+        one = self.gtr[self.gtr>0].size
+        zero = self.gtr[self.gtr==0].size
+        print('zero:',zero)
+        print('one:',one)
+        print('weight:',zero/one)
 
 
-tsr = np.broadcast_to(tsr, (10000, 30, 16, 16, 4))
-gtr = np.broadcast_to(gtr, (10000, 30, 16, 16))
-print(tsr.shape)
-print(gtr.shape)
+    # nomalize groud truth as the last second
+    def batchNomalize(self):
+        self.gtr = (self.gtr - np.min(self.gtr)) / (np.max(self.gtr) - np.min(self.gtr))
+        print('min: ', np.min(self.gtr))
+        print('max: ', np.max(self.gtr))
+        print('mean: ', np.mean(self.gtr))
+        print('median: ', np.median(self.gtr))
 
+    # broadcast one sample to many 
+    def broadCast(self):
+        self.tsr = np.broadcast_to(self.tsr, (10000, 30, 16, 16, 4))
+        self.gtr = np.broadcast_to(self.gtr, (10000, 16, 16))
+        print(self.tsr.shape)
+        print(self.gtr.shape)
 
-np.save('data/trainingSets_overfit.npy', tsr)
-np.save('data/groundTruths_overfit.npy', gtr)
+    def saveData(self):
+        np.save('data/trainingSets_overfit.npy', self.tsr)
+        np.save('data/groundTruths_overfit.npy', self.gtr)
 
+    def checkGroundTruthIdentical(self):
+        a1 = self.gtr[0]
+        a2 = self.gtr[10]
+        a3 = self.gtr[100]
+        a4 = self.gtr[1000]
 
-a1 = gtr[0]
-a2 = gtr[10]
-a3 = gtr[100]
-a4 = gtr[1000]
+        print(np.all(a1==a2))
+        print(np.all(a1==a3))
+        print(np.all(a1==a4))
+        print(np.all(a3==a2))
 
-print(np.all(a1==a2))
-print(np.all(a1==a3))
-print(np.all(a1==a4))
-print(np.all(a3==a2))
+p = Preprocess()
