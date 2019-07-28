@@ -117,12 +117,10 @@ class Cnn_Lstm_Model:
 
         self.model.compile(
             optimizer='adadelta',
-            # loss=kullback_leibler_divergence,
-            # loss=weighted_binary_crossentropy(3),
-            # metrics=[recall]
+            loss=weighted_binary_crossentropy(3),
+            metrics=[recall]
             # loss='mean_squared_error',
-            loss='mean_squared_logarithmic_error',
-            metrics=[metrics.mae]
+            # metrics=[metrics.mae]
         )
         
 
@@ -136,10 +134,10 @@ class Cnn_Lstm_Model:
         callbacks = []
         callbacks.append(
             ModelCheckpoint(
-                # filepath=os.path.join("checkpoints","uav-{epoch:02d}-{val_recall:.2f}.hdf5"),
-                # monitor='val_recall',
-                filepath=os.path.join("checkpoints","uav-{epoch:02d}-{val_mean_absolute_error:.2f}.hdf5"),
-                monitor='val_mean_absolute_error',
+                filepath=os.path.join("checkpoints","uav-{epoch:02d}-{val_recall:.2f}.hdf5"),
+                monitor='val_recall',
+                # filepath=os.path.join("checkpoints","uav-{epoch:02d}-{val_mean_absolute_error:.2f}.hdf5"),
+                # monitor='val_mean_absolute_error',
                 mode='auto',
                 save_best_only=True,
                 save_weights_only=True,
@@ -171,6 +169,23 @@ class Cnn_Lstm_Model:
 
         for i in range(num):
             cv2.imwrite('img/y{0}.png'.format(i), y_test[i] * 255)
+            cv2.imwrite('img/p{0}.png'.format(i), p[i] * 255)
+    
+
+    def meanDensityMap(self):
+        y_test = self.y_test
+        x_test = self.x_test
+        self.model.load_weights('checkpoints/{0}.hdf5'.format(ckpt))
+        self.configure()
+        prediction = self.model.predict(x_test)
+        
+        p = np.sum(prediction, axis=1)
+        p = p / prediction.shape[1]
+        y = np.sum(y_test, axis=1)
+        y = y / y_test.shape[1]
+
+        for i in range(10):
+            cv2.imwrite('img/y{0}.png'.format(i), y[i] * 255)
             cv2.imwrite('img/p{0}.png'.format(i), p[i] * 255)
 
 
