@@ -28,12 +28,6 @@ class Cnn_Lstm_Model:
         # uav_label = uav_label[:2]
         print('uav_label: ', uav_label.shape) # (1000, 30, 16, 16)
 
-        # uav_label = (uav_label - np.min(uav_label)) / np.max(uav_label) - np.min(uav_label)
-        # print('uav_label min: ', np.min(uav_label))
-        # print('uav_label max: ', np.max(uav_label))
-        # print('uav_label mean: ', np.mean(uav_label))
-        # print('uav_label median: ', np.median(uav_label))
-
         data_size = int(len(uav_data) * 0.85)
 
         # (x_train, y_train) = uav_data[:850], uav_label[:850]
@@ -60,15 +54,6 @@ class Cnn_Lstm_Model:
         lstm_model.add(LSTM(512, input_shape=(30, 512), dropout=0.0, return_sequences=True))
         lstm_model.add(TimeDistributed(Dense(256)))
         lstm_model.add(TimeDistributed(Reshape((16, 16))))
-        # lstm_model.add(Reshape((30, 16, 16)))
-
-        # lstm_model.add(BatchNormalization())
-        # lstm_model.add(Dense(2048))
-        # lstm_model.add(BatchNormalization())
-        # lstm_model.add(LeakyReLU(alpha=.001))
-        # lstm_model.add(Dense(1024))
-        # lstm_model.add(BatchNormalization())
-        # lstm_model.add(LeakyReLU(alpha=.001))
         lstm_model.summary()
 
 
