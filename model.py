@@ -179,15 +179,26 @@ class Cnn_Lstm_Model:
         self.configure()
         prediction = self.model.predict(x_test)
         
-        p = np.sum(prediction, axis=1)
-        p = p / prediction.shape[1]
-        y = np.sum(y_test, axis=1)
-        y = y / y_test.shape[1]
+        print(np.all(prediction==y_test))
 
-        import cv2
-        for i in range(10):
-            cv2.imwrite('img/y{0}.png'.format(i), y[i] * 255)
-            cv2.imwrite('img/p{0}.png'.format(i), p[i] * 255)
+
+        # p = np.sum(prediction, axis=1)
+        # p = p / prediction.shape[1]
+        # y = np.sum(y_test, axis=1)
+        # y = y / y_test.shape[1]
+
+
+        # p = (p - np.min(p)) / (np.max(p) - np.min(p))
+        # print('min: ', np.min(p))
+        # print('max: ', np.max(p))
+        # print('mean: ', np.mean(p))
+        # print('median: ', np.median(p))
+        
+
+        # import cv2
+        # for i in range(10):
+        #     cv2.imwrite('img/y{0}.png'.format(i), y[i] * 255)
+        #     cv2.imwrite('img/p{0}.png'.format(i), p[i] * 255)
 
 
 CSM = Cnn_Lstm_Model("data/trainingSets_overfit.npy", "data/groundTruths_overfit.npy", 5)
