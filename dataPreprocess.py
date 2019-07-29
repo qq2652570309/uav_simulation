@@ -11,8 +11,10 @@ class Preprocess:
 
     # only save the first sample after 30 seconds
     def from30toEnd(self):
-        self.gtr = self.gtr[:1, 30:]
-        self.tsr = self.tsr[:1, 30:]
+        # self.gtr = self.gtr[:1, 30:]
+        # self.tsr = self.tsr[:1, 30:]
+        self.gtr = self.gtr[:, 30:]
+        self.tsr = self.tsr[:, 30:]
         print(self.tsr.shape)
         print(self.gtr.shape)
 
@@ -59,8 +61,8 @@ class Preprocess:
         print(self.gtr.shape)
 
     def saveData(self):
-        np.save('data/trainingSets_overfit.npy', self.tsr)
-        np.save('data/groundTruths_overfit.npy', self.gtr)
+        np.save('data/trainingSets_diff.npy', self.tsr)
+        np.save('data/groundTruths_diff.npy', self.gtr)
 
     def checkGroundTruthIdentical(self):
         a1 = self.gtr[0]
@@ -77,6 +79,6 @@ p = Preprocess()
 p.from30toEnd()
 p.oneOrZero()
 p.computeWeights()
-p.broadCast()
+# p.broadCast()
 p.checkGroundTruthIdentical()
 p.saveData()
