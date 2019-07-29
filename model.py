@@ -117,7 +117,7 @@ class Cnn_Lstm_Model:
 
         self.model.compile(
             optimizer='adadelta',
-            loss=weighted_binary_crossentropy(3),
+            loss=weighted_binary_crossentropy(4),
             metrics=[recall]
             # loss='mean_squared_error',
             # metrics=[metrics.mae]
@@ -138,8 +138,8 @@ class Cnn_Lstm_Model:
                 monitor='val_recall',
                 # filepath=os.path.join("checkpoints","uav-{epoch:02d}-{val_mean_absolute_error:.2f}.hdf5"),
                 # monitor='val_mean_absolute_error',
-                mode='max',
-                save_best_only=True,
+                mode='auto',
+                save_best_only=False,
                 save_weights_only=True,
                 verbose=True
             )
@@ -147,7 +147,7 @@ class Cnn_Lstm_Model:
         
         self.model.fit(x_train, y_train,
                     epochs=self.epics,
-                    batch_size=256,
+                    batch_size=32,
                     shuffle=True,
                     validation_data=(x_test, y_test),
                     callbacks=callbacks)
@@ -179,31 +179,38 @@ class Cnn_Lstm_Model:
         self.configure()
         prediction = self.model.predict(x_test)
         
-        print(np.all(prediction==y_test))
+        # y_test/ prediction : (1500, 30, 16, 16)
 
+        prediction[prediction>0] = 1
+        prediction[prediction<0] = 0
+        print(np.all(y_test==prediction))
 
-        # p = np.sum(prediction, axis=1)
-        # p = p / prediction.shape[1]
-        # y = np.sum(y_test, axis=1)
-        # y = y / y_test.shape[1]
+        p = np.sum(prediction, axis=1)
+        p = p / prediction.shape[1]
+        y = np.sum(y_test, axis=1)
+        y = y / y_test.shape[1]
 
+        p = (p - np.min(p)) / (np.max(p) - np.min(p))
+        print('prediction min: ', np.min(p))
+        print('prediction max: ', np.max(p))
+        print('prediction mean: ', np.mean(p))
+        print('prediction median: ', np.median(p))
 
-        # p = (p - np.min(p)) / (np.max(p) - np.min(p))
-        # print('min: ', np.min(p))
-        # print('max: ', np.max(p))
-        # print('mean: ', np.mean(p))
-        # print('median: ', np.median(p))
+        y = (y - np.min(y)) / (np.max(y) - np.min(y))
+        print('y_test min: ', np.min(y))
+        print('y_test max: ', np.max(y))
+        print('y_test mean: ', np.mean(y))
+        print('y_test median: ', np.median(y))
         
+        import cv2
+        for i in range(10):
+            cv2.imwrite('img/y{0}.png'.format(i), y[i] * 255)
+            cv2.imwrite('img/p{0}.png'.format(i), p[i] * 255)
 
-        # import cv2
-        # for i in range(10):
-        #     cv2.imwrite('img/y{0}.png'.format(i), y[i] * 255)
-        #     cv2.imwrite('img/p{0}.png'.format(i), p[i] * 255)
 
-
-CSM = Cnn_Lstm_Model("data/trainingSets_overfit.npy", "data/groundTruths_overfit.npy", 5)
+CSM = Cnn_Lstm_Model("data/trainingSets_overfit.npy", "data/groundTruths_overfit.npy", 10)
 # CSM.train()
 # CSM.predict('uav-02-1.00', 0, -1)
-CSM.meanDensityMap('uav-02-1.00')
+CSM.meanDensityMap('uav-05-1.00')
 
 
