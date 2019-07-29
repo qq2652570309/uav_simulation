@@ -6,8 +6,19 @@ class Preprocess:
     def __init__(self):
         self.gtr = np.load("data/groundTruths_raw.npy")
         self.tsr = np.load("data/trainingSets_raw.npy")
-        print('raw groundTruth: ', self.tsr.shape)
-        print('raw trainingSets', self.gtr.shape)
+        print('raw trainingSets', self.tsr.shape)
+        print('raw groundTruth: ', self.gtr.shape)
+
+    def split(self):
+        dgtr = self.gtr[:,-1:]
+        print(dgtr.shape)
+        print(np.sum(self.tsr[:,-1]))
+        np.save('groundTruths_density.npy', dgtr)
+        self.gtr = self.gtr[:,:-1]
+        self.tsr = self.tsr[:,:-1]
+        print('\nafter split')
+        print('raw trainingSets', self.tsr.shape)
+        print('raw groundTruth: ', self.gtr.shape)
 
     # only save the first sample after 30 seconds
     def from30toEnd(self):
@@ -76,6 +87,7 @@ class Preprocess:
         print(np.all(a3==a2))
 
 p = Preprocess()
+p.split()
 p.from30toEnd()
 p.oneOrZero()
 p.computeWeights()

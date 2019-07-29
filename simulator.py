@@ -41,9 +41,12 @@ class Simulator:
             for startRow, startCol in startPositions:
                 logging.info('   At start Point ({0}, {1})'.format(startRow, startCol))
                 # set traning sets
-                self.trainingSets[index,:,startRow,startCol,1] = np.random.uniform(0, 1)
+                self.trainingSets[index,:-1,startRow,startCol,1] = np.random.uniform(0, 1)
                 # generate ground truth
                 for currentTime in range(self.time):
+                    if currentTime == self.time -1:
+                        continue
+
                     succ = np.random.uniform(0,1) <= self.trainingSets[index,currentTime,startRow,startCol,1]
                     if succ:
                         endRow, endCol  = random.choice(endPositions)
