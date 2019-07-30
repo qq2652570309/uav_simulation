@@ -103,7 +103,7 @@ class Preprocess:
         print('check complete\n')
 
 p = Preprocess()
-p.split()
+# p.split()
 # p.from30toEnd()
 # p.oneOrZero()
 # p.computeWeights()

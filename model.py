@@ -117,7 +117,7 @@ class Cnn_Lstm_Model:
 
         self.model.compile(
             optimizer='adadelta',
-            loss=weighted_binary_crossentropy(4),
+            loss=weighted_binary_crossentropy(2.4),
             metrics=[recall]
             # loss='mean_squared_error',
             # metrics=[metrics.mae]
@@ -138,8 +138,8 @@ class Cnn_Lstm_Model:
                 monitor='val_recall',
                 # filepath=os.path.join("checkpoints","uav-{epoch:02d}-{val_mean_absolute_error:.2f}.hdf5"),
                 # monitor='val_mean_absolute_error',
-                mode='auto',
-                save_best_only=False,
+                mode='max',
+                save_best_only=True,
                 save_weights_only=True,
                 verbose=True
             )
@@ -147,7 +147,7 @@ class Cnn_Lstm_Model:
         
         self.model.fit(x_train, y_train,
                     epochs=self.epics,
-                    batch_size=32,
+                    batch_size=8,
                     shuffle=True,
                     validation_data=(x_test, y_test),
                     callbacks=callbacks)
@@ -180,37 +180,51 @@ class Cnn_Lstm_Model:
         prediction = self.model.predict(x_test)
         
         # y_test/ prediction : (1500, 30, 16, 16)
+        prediction = np.round(np.clip(prediction, 0, 1))
 
-        prediction[prediction>0] = 1
-        prediction[prediction<0] = 0
-        print(np.all(y_test==prediction))
+        prediction = prediction[:,25:]
 
         p = np.sum(prediction, axis=1)
         p = p / prediction.shape[1]
         y = np.sum(y_test, axis=1)
         y = y / y_test.shape[1]
 
-        p = (p - np.min(p)) / (np.max(p) - np.min(p))
-        print('prediction min: ', np.min(p))
-        print('prediction max: ', np.max(p))
-        print('prediction mean: ', np.mean(p))
-        print('prediction median: ', np.median(p))
+        for i in range(len(p)):
+            p[i] = (p[i] - np.min(p[i])) / (np.max(p[i]) - np.min(p[i]))
 
-        y = (y - np.min(y)) / (np.max(y) - np.min(y))
-        print('y_test min: ', np.min(y))
-        print('y_test max: ', np.max(y))
-        print('y_test mean: ', np.mean(y))
-        print('y_test median: ', np.median(y))
+        for i in range(len(y)):
+            y[i] = (y[i] - np.min(y[i])) / (np.max(y[i]) - np.min(y[i]))
         
-        import cv2
-        for i in range(10):
-            cv2.imwrite('img/y{0}.png'.format(i), y[i] * 255)
-            cv2.imwrite('img/p{0}.png'.format(i), p[i] * 255)
+        # np.save('data/prediction.npy', p)
+        # np.save('data/y_test.npy', y)
+
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+
+        n = 8
+        plt.figure(figsize=(30, 4))
+        for i in range(1, n+1):
+            # display original
+            ax = plt.subplot(2, n, i)
+            plt.imshow(y[i])
+            plt.gray()
+            ax.get_xaxis().set_visible(False)
+            ax.get_yaxis().set_visible(False)
+
+            # display reconstruction
+            ax = plt.subplot(2, n, i + n)
+            plt.imshow(p[i])
+            plt.gray()
+            ax.get_xaxis().set_visible(False)
+            ax.get_yaxis().set_visible(False)
+        # plt.show()
+        plt.savefig("img/trajectory1.png")
 
 
-CSM = Cnn_Lstm_Model("data/trainingSets_overfit.npy", "data/groundTruths_overfit.npy", 10)
+CSM = Cnn_Lstm_Model("data/trainingSets_diff.npy", "data/groundTruths_diff.npy", 50)
 # CSM.train()
 # CSM.predict('uav-02-1.00', 0, -1)
-CSM.meanDensityMap('uav-05-1.00')
+CSM.meanDensityMap('uav-49-0.82')
 
 
