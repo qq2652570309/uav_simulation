@@ -195,31 +195,8 @@ class Cnn_Lstm_Model:
         for i in range(len(y)):
             y[i] = (y[i] - np.min(y[i])) / (np.max(y[i]) - np.min(y[i]))
         
-        # np.save('data/prediction.npy', p)
-        # np.save('data/y_test.npy', y)
-
-        import matplotlib
-        matplotlib.use('Agg')
-        import matplotlib.pyplot as plt
-
-        n = 8
-        plt.figure(figsize=(30, 4))
-        for i in range(1, n+1):
-            # display original
-            ax = plt.subplot(2, n, i)
-            plt.imshow(y[i])
-            plt.gray()
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-
-            # display reconstruction
-            ax = plt.subplot(2, n, i + n)
-            plt.imshow(p[i])
-            plt.gray()
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-        # plt.show()
-        plt.savefig("img/trajectory1.png")
+        np.save('data/prediction.npy', p)
+        np.save('data/y_test.npy', y)
 
 
 CSM = Cnn_Lstm_Model("data/trainingSets_diff.npy", "data/groundTruths_diff.npy", 50)

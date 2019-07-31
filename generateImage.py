@@ -3,31 +3,41 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-y_test = np.load('data/groundTruths_density.npy')
-prediction = np.load('data/prediction.npy')
+y = np.load('data/y_test.npy')
+p = np.load('data/prediction.npy')
 
-y_test = y_test[8500:]
-print(y_test.shape)
-for i in range(len(y_test)):
-    y_test[i] = (y_test[i] - np.min(y_test[i])) / (np.max(y_test[i]) - np.min(y_test[i]))
+print(y.shape)
+print(p.shape)
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+n = 9
+rowHeader = ['groundTrue', 'prediction']
+colHeader = ['time {}'.format(col-1) for col in range(1, n+1)]
 
 
-n = 15
-plt.figure(figsize=(30, 4))
+plt.figure(figsize=(20, 4))
 for i in range(1, n+1):
     # display original
     ax = plt.subplot(2, n, i)
-    plt.imshow(y_test[i])
+    ax.set_title(colHeader[i-1])
+    if i == 1:
+        ax.set_ylabel(rowHeader[0], rotation=90, size='large')
+    plt.imshow(y[i-1])
     plt.gray()
     ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
+    ax.get_yaxis().set_visible(True)
 
     # display reconstruction
     ax = plt.subplot(2, n, i + n)
-    plt.imshow(prediction[i])
+    if i == 1:
+        ax.set_ylabel(rowHeader[1], rotation=90, size='large')
+    plt.imshow(p[i-1])
     plt.gray()
     ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
+    ax.get_yaxis().set_visible(True)
 # plt.show()
-plt.savefig("img/density_trajectory.png")
+plt.savefig("img/density_with_label.png")
 
