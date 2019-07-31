@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 y = np.load('data/y_test.npy')
@@ -40,4 +38,3 @@ for i in range(1, n+1):
     ax.get_yaxis().set_visible(True)
 # plt.show()
 plt.savefig("img/density_with_label.png")
-
