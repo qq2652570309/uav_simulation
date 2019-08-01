@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 y = np.load('data/y_test.npy')
 p = np.load('data/prediction.npy')
