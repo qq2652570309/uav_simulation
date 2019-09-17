@@ -7,57 +7,62 @@ import time
 import random
 import logging
 import numpy as np
+from Area import Area
 
 class Simulator:
-    def __init__(self, iteration = 1, time=60, row=0, column=0,  startPointsNum=10, endPointsNum=10):
-        self.iteration = iteration
+    def __init__(self, batch = 1, time=60, row=0, column=0,  taskNum=10, timeInterval=5):
+        self.batch = batch
         self.row = row
         self.column = column
         self.time = time
-        self.startPointsNum = startPointsNum
-        self.endPointsNum = endPointsNum
-        # In channel, 0th is status that uav is launching at this second
-        # 1st is launching rate of this point
-        # 2nd and 3rd is (x, y) postion of destination point
-        self.trainingSets = np.zeros(shape=(self.iteration, self.time, self.row, self.column, 4), dtype=np.float32)
-        self.groundTruths = np.zeros(shape=(self.iteration, self.time, self.row, self.column), dtype=np.float32)
-        logging.info('finish init\n')
+        self.taskNum = taskNum
+        self.timeInterval = timeInterval
+        self.area = Area(0.1,0.9)
+        # In channel, 1st and 2nd are (x, y) launching location, 3rd and 4th are (x, y) destination location
+        # self.trainingSets = np.zeros(shape=(self.iteration, self.time, self.row, self.column, 4), dtype=np.float32)
+        self.trainingSets = np.zeros(shape=(self.batch, self.time, taskNum, 4), dtype=np.float32)
+        self.groundTruths = np.zeros(shape=(self.batch, self.time, self.row, self.column), dtype=np.float32)
+        # record all launching and landing postions
+        # self.positions = np.zeros(shape=(self.batch,  self.row, self.column), dtype=np.float32)
+        self.totalFlyingTime = 0
+        self.totalUavNum = 0
+        # logging.info('finish init\n')
 
 
     def generate(self):
         startTimeTotal = time.time()
-        startPoints = self.choosePoints(self.startPointsNum)
-        startPositions = list(map(lambda x: (x//self.column, x%self.column), startPoints))
-        endPoints = self.choosePoints(self.endPointsNum)
-        endPositions = list(map(lambda x: (x//self.column, x%self.column), endPoints))
-        for index in range(self.iteration):
+        
+        for batch_idx in range(self.batch):
             startTimeIter = time.time()
-            logging.info('At {0} iteration'.format(index))
-            # startPoints = self.choosePoints(self.startPointsNum)
-            # startPositions = list(map(lambda x: (x//self.column, x%self.column), startPoints))
-            # endPoints = self.choosePoints(self.endPointsNum)
-            # endPositions = list(map(lambda x: (x//self.column, x%self.column), endPoints))
 
-            for startRow, startCol in startPositions:
-                logging.info('   At start Point ({0}, {1})'.format(startRow, startCol))
-                # set traning sets
-                self.trainingSets[index,:-1,startRow,startCol,1] = np.random.uniform(0, 1)
-                # generate ground truth
-                for currentTime in range(self.time):
-                    if currentTime == self.time -1:
-                        continue
+            self.area = Area(0.1, 0.9)
+            # self.setColor(batch_idx, self.area.la, self.area.da)
 
-                    succ = np.random.uniform(0,1) <= self.trainingSets[index,currentTime,startRow,startCol,1]
+            # time iteration
+            for currentTime in range(self.time):
+                
+                # task iteration
+                startPositions = self.area.getLaunchPoint(n=self.taskNum)
+                for task_idx, task_val in zip(range(len(startPositions)), startPositions):
+                    startRow, startCol, launchingRate = task_val
+                    startRow = int(startRow)
+                    startCol = int(startCol)
+                    succ = np.random.uniform(0,1) <= launchingRate
+                    
+                    # if there is a launching UAV
                     if succ:
-                        endRow, endCol  = random.choice(endPositions)
+                        self.totalUavNum += 1
+                        endRow, endCol = self.area.getDestination()
                         remainingTime = self.time - currentTime
                         
                         # add info into channel
-                        self.trainingSets[index,currentTime,startRow,startCol,0] = 1 # launching one uav
-                        self.trainingSets[index,currentTime,startRow,startCol,2] = endRow # destination row value
-                        self.trainingSets[index,currentTime,startRow,startCol,3] = endCol # destination col value
+                        self.trainingSets[batch_idx,currentTime,task_idx,0] = startRow
+                        self.trainingSets[batch_idx,currentTime,task_idx,1] = startCol
+                        self.trainingSets[batch_idx,currentTime,task_idx,2] = endRow
+                        self.trainingSets[batch_idx,currentTime,task_idx,3] = endCol
                         
-                        logging.info('      At time {0}, ({1}, {2}) --> ({3}, {4})'.format(currentTime, startRow, startCol, endRow, endCol))
+                        # logging.info('      At time {0}, ({1}, {2}) --> ({3}, {4})'.format(currentTime, startRow, startCol, endRow, endCol))
+                        flyingTime = 0
                         if remainingTime >= abs(startCol-endCol)+1 :
                             # enough time for horizontal
                             if startCol < endCol :
@@ -71,8 +76,9 @@ class Simulator:
                             else:
                                 r = np.arange(startCol-remainingTime+1, startCol+1)[::-1]
                         t1 = np.arange(currentTime, currentTime+len(r))
-                        self.groundTruths[index,t1,startRow,r] += 1
+                        self.groundTruths[batch_idx,t1,startRow,r] += 1
                         remainingTime -= len(r)
+                        self.totalFlyingTime += len(r)
 
                         if remainingTime > 0 :
                             # exists time for vertical
@@ -89,30 +95,32 @@ class Simulator:
                                 else:
                                     c = np.arange(startRow-remainingTime, startRow)[::-1]
                             t2 = np.arange(t1[-1]+1, t1[-1] + len(c)+1)
-                            self.groundTruths[index,t2, c, endCol] += 1
-            logging.info('End {0} iteration, cost {1}\n'.format(index, time.time() - startTimeIter))
-        logging.info('finish generate, cost {0}'.format(time.time() - startTimeTotal))
+                            self.groundTruths[batch_idx,t2, c, endCol] += 1
+                            self.totalFlyingTime += len(c)
+            # logging.info('End {0} iteration, cost {1}\n'.format(batch_idx, time.time() - startTimeIter))
+        # logging.info('finish generate, cost {0}'.format(time.time() - startTimeTotal))
+        
+
+    def setColor(self, batch_idx, startPositions, endPositions):
+        for sp, ep in zip(startPositions, endPositions):
+            self.positions[batch_idx, sp[0], sp[1]] = 0.2
+            self.positions[batch_idx, ep[0], ep[1]] = 0.5
 
 
-    # maybe startPointsNum != endPointsNum
-    def choosePoints(self, pointsNum):
-        return np.random.choice(self.row*self.column, pointsNum, replace=False)
+if __name__ == "__main__":
+    logger = logging.getLogger()
+    logger.disabled = True
 
+    logging.basicConfig(filename='log.txt', format='%(levelname)s:%(message)s', level=logging.INFO)
 
-    # Nomalize groundTruths, for each element, if it is less than median, assign to 0; otherwise assign to 1.
-    def statusNormalize(self):
-        medianVal = np.median(self.groundTruths[self.groundTruths!=0])
-        self.groundTruths[self.groundTruths>medianVal] = 1
-        self.groundTruths[self.groundTruths<=medianVal] = 0
+    logging.info('Started')
+    startTimeIter = time.time()
+    s = Simulator(batch=1, row=32, column=32, time=100)
+    s.generate()
+    print('UAV Avg Flying Time: ', s.totalFlyingTime/s.totalUavNum)
 
-
-    # only save time after 30 seconds
-    def dataProcess(self):
-        self.statusNormalize()
-        self.trainingSets = self.trainingSets[:,30:,:,:,:]
-        self.groundTruths = self.groundTruths[:,30:,:,:]
-
-    def chooseTimeClip(self):
-        self.groundTruths = self.groundTruths[:, np.arange(0, self.groundTruths.shape[1], step=5), :,:,:]
-
-
+    logging.info('Finished')
+    np.save('data/raw_trainingSets.npy', s.trainingSets)
+    np.save('data/raw_groundTruths.npy', s.groundTruths)
+    # np.save('data/positions.npy', s.positions)
+    print('Simulation Total Time: ', time.time() - startTimeIter)
